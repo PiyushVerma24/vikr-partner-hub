@@ -37,7 +37,7 @@ export async function getPartners() {
 
   try {
     await requireAdmin(supabase)
-    
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -56,7 +56,7 @@ export async function updatePartnerTerritory(partnerId: string, newTerritory: Te
 
   try {
     await requireAdmin(supabase)
-    
+
     const { error } = await supabase
       .from('profiles')
       .update({ territory_code: newTerritory })
@@ -76,31 +76,47 @@ export async function updatePartnerTerritory(partnerId: string, newTerritory: Te
 // CONTENT MANAGEMENT (Phase 3.4 - Partial)
 // ------------------------------------------------------------------
 
+export async function getProducts() {
+  const supabase = await createClient()
+  try {
+    await requireAdmin(supabase)
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, sku, name')
+      .order('name', { ascending: true })
+    if (error) throw error
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error('Error fetching products:', error)
+    return { success: false, data: null, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}
+
 export async function createProduct(formData: FormData) {
-    const supabase = await createClient()
+  const supabase = await createClient()
 
-    try {
-        await requireAdmin(supabase)
+  try {
+    await requireAdmin(supabase)
 
-        const sku = formData.get('sku') as string
-        const name = formData.get('name') as string
-        const category = formData.get('category') as string
-        const ph_level = parseFloat(formData.get('ph_level') as string)
+    const sku = formData.get('sku') as string
+    const name = formData.get('name') as string
+    const category = formData.get('category') as string
+    const ph_level = parseFloat(formData.get('ph_level') as string)
 
-        if (!sku || !name) throw new Error('SKU and Name are required')
+    if (!sku || !name) throw new Error('SKU and Name are required')
 
-        const { error } = await supabase
-            .from('products')
-            .insert({ sku, name, category, ph_level: isNaN(ph_level) ? null : ph_level })
+    const { error } = await supabase
+      .from('products')
+      .insert({ sku, name, category, ph_level: isNaN(ph_level) ? null : ph_level })
 
-        if (error) throw error
+    if (error) throw error
 
-        revalidatePath('/dashboard/admin/cms')
-        return { success: true }
-    } catch (error: unknown) {
-        console.error('Error creating product:', error)
-        return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
-    }
+    revalidatePath('/dashboard/admin/cms')
+    return { success: true }
+  } catch (error: unknown) {
+    console.error('Error creating product:', error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
 }
 
 // ------------------------------------------------------------------
@@ -121,7 +137,7 @@ export async function createMeeting(formData: FormData) {
     const notes = formData.get('notes') as string
 
     if (!partnerId || !title || !dateTimeStr) {
-        throw new Error('Partner, Title, and Date are required')
+      throw new Error('Partner, Title, and Date are required')
     }
 
     const { error } = await supabase
@@ -141,6 +157,84 @@ export async function createMeeting(formData: FormData) {
     return { success: true }
   } catch (error: unknown) {
     console.error('Error creating meeting:', error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}
+
+// ------------------------------------------------------------------
+// EDUCATION & ENGAGEMENT (Phase 2.1 & 3.4 Gaps)
+// ------------------------------------------------------------------
+
+export async function createTrainingModule(formData: FormData) {
+  const supabase = await createClient()
+
+  try {
+    await requireAdmin(supabase)
+
+    const title = formData.get('title') as string
+    const description = formData.get('description') as string
+    const video_url = formData.get('video_url') as string
+    const pdf_url = formData.get('pdf_url') as string
+    const category = formData.get('category') as string
+    const market_segment = formData.get('market_segment') as string
+
+    if (!title || !video_url) {
+      throw new Error('Title and Video URL are required')
+    }
+
+    const { error } = await supabase
+      .from('training_modules')
+      .insert({
+        title,
+        description: description || null,
+        video_url,
+        pdf_url: pdf_url || null,
+        category,
+        market_segment
+      })
+
+    if (error) throw error
+
+    revalidatePath('/dashboard/training')
+    revalidatePath('/dashboard/admin/cms')
+    return { success: true }
+  } catch (error: unknown) {
+    console.error('Error creating training module:', error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}
+
+export async function createAnnouncement(formData: FormData) {
+  const supabase = await createClient()
+
+  try {
+    await requireAdmin(supabase)
+
+    const title = formData.get('title') as string
+    const content = formData.get('content') as string
+    const attachment_url = formData.get('attachment_url') as string
+    const is_pinned = formData.get('is_pinned') === 'true'
+
+    if (!title || !content) {
+      throw new Error('Title and Content are required')
+    }
+
+    const { error } = await supabase
+      .from('announcements')
+      .insert({
+        title,
+        content,
+        attachment_url: attachment_url || null,
+        is_pinned
+      })
+
+    if (error) throw error
+
+    revalidatePath('/dashboard')
+    revalidatePath('/dashboard/admin/cms')
+    return { success: true }
+  } catch (error: unknown) {
+    console.error('Error creating announcement:', error)
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }

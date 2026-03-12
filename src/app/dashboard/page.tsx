@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Package, FileText, Video } from "lucide-react"
+import { Package, FileText, Video, Bell, Link2 } from "lucide-react"
 import { getAnnouncements } from "@/app/dashboard/actions/content"
 
 type Announcement = {
@@ -32,91 +31,105 @@ export default function DashboardPage() {
   }, [])
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Overview</h2>
-        <p className="text-muted-foreground">Welcome back to the VIKR Partner Hub.</p>
+    <div className="p-4 md:p-8 space-y-8 bg-[#0B0C10] min-h-full">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-sm font-bold tracking-widest text-[#0ABFBC] uppercase">System Overview</h2>
+        <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">Control Center</h1>
+        <p className="text-[#8F9BB3]">Welcome back to your centralized command dashboard.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Products</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">Active SKUs for your region</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Technical Docs</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">TDS & MSDS Available</p>
-          </CardContent>
-        </Card>
-        <Card className="sm:col-span-2 md:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Training Modules</CardTitle>
-            <Video className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">New videos this month</p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Metric Card 1 */}
+        <div className="bg-[#131720] border border-[#1E2330] rounded-2xl p-6 shadow-lg flex-1 hover:border-[#0ABFBC]/30 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-[#8F9BB3] uppercase tracking-wider">Product Vault</h3>
+            <div className="p-2 bg-[#0ABFBC]/10 rounded-lg">
+              <Package className="h-5 w-5 text-[#0ABFBC]" />
+            </div>
+          </div>
+          <div className="text-3xl font-extrabold text-white">--</div>
+          <p className="text-xs text-[#4E5666] font-medium tracking-wide uppercase mt-2">Active SKUs For Your Tier</p>
+        </div>
+
+        {/* Metric Card 2 */}
+        <div className="bg-[#131720] border border-[#1E2330] rounded-2xl p-6 shadow-lg flex-1 hover:border-[#0ABFBC]/30 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-[#8F9BB3] uppercase tracking-wider">Asset Library</h3>
+            <div className="p-2 bg-[#0ABFBC]/10 rounded-lg">
+              <FileText className="h-5 w-5 text-[#0ABFBC]" />
+            </div>
+          </div>
+          <div className="text-3xl font-extrabold text-white">--</div>
+          <p className="text-xs text-[#4E5666] font-medium tracking-wide uppercase mt-2">TDS & MSDS Available</p>
+        </div>
+
+        {/* Metric Card 3 */}
+        <div className="bg-[#131720] border border-[#1E2330] rounded-2xl p-6 shadow-lg flex-1 hover:border-[#0ABFBC]/30 transition-colors sm:col-span-2 lg:col-span-1">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-[#8F9BB3] uppercase tracking-wider">Training Nexus</h3>
+            <div className="p-2 bg-[#0ABFBC]/10 rounded-lg">
+              <Video className="h-5 w-5 text-[#0ABFBC]" />
+            </div>
+          </div>
+          <div className="text-3xl font-extrabold text-white">--</div>
+          <p className="text-xs text-[#4E5666] font-medium tracking-wide uppercase mt-2">New Video Guides Added</p>
+        </div>
       </div>
 
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-7">
-        <Card className="col-span-1 xl:col-span-4 overflow-hidden">
-          <CardHeader>
-            <CardTitle>Recent Announcements</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="col-span-1 xl:col-span-4 bg-[#131720] border border-[#1E2330] rounded-2xl overflow-hidden shadow-lg">
+          <div className="p-6 border-b border-[#1E2330] flex items-center gap-3">
+            <div className="p-2 bg-[#0ABFBC]/10 rounded-lg">
+              <Bell className="w-5 h-5 text-[#0ABFBC]" />
+            </div>
+            <div>
+              <h3 className="text-lg font-extrabold text-white">Network Broadcasts</h3>
+              <p className="text-xs font-semibold tracking-wide text-[#8F9BB3] uppercase">Recent Alerts & Updates</p>
+            </div>
+          </div>
+          <div className="p-6">
             {isLoading ? (
-               <div className="py-8 text-center text-sm text-muted-foreground text-zinc-500">Loading announcements...</div>
+              <div className="py-12 flex justify-center items-center">
+                <div className="w-6 h-6 border-2 border-[#0ABFBC] border-t-transparent rounded-full animate-spin" />
+              </div>
             ) : announcements.length === 0 ? (
-               <div className="py-8 text-center text-sm text-muted-foreground text-zinc-500">No new announcements at this time.</div>
+              <div className="py-8 text-center text-sm font-medium tracking-wide text-[#4E5666] uppercase">No active broadcasts</div>
             ) : (
-                <div className="space-y-6 flex flex-col justify-center">
-                  {announcements.map((announcement) => (
-                    <div key={announcement.id} className="flex flex-col gap-1 border-b border-zinc-100 dark:border-zinc-800 pb-4 last:border-0 last:pb-0">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
-                        <div className="flex items-center gap-2">
-                          {announcement.is_pinned && <span className="text-[10px] bg-primary/10 text-primary font-bold px-1.5 py-0.5 rounded leading-none">PINNED</span>}
-                          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                            {announcement.title}
-                          </p>
-                        </div>
-                        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap sm:ml-4">
-                          {new Date(announcement.date_posted).toLocaleDateString()}
-                        </span>
+              <div className="space-y-6">
+                {announcements.map((announcement) => (
+                  <div key={announcement.id} className="flex flex-col gap-2 border-b border-[#1E2330]/50 pb-5 last:border-0 last:pb-0">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                      <div className="flex items-center gap-2">
+                        {announcement.is_pinned && <span className="text-[10px] bg-[#FF4C4C]/10 border border-[#FF4C4C]/30 text-[#FF4C4C] font-bold px-1.5 py-0.5 rounded tracking-wide uppercase">PRIORITY</span>}
+                        <p className="text-base font-bold text-white tracking-wide">
+                          {announcement.title}
+                        </p>
                       </div>
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                        {announcement.content}
-                      </p>
-                      {announcement.attachment_url && (
-                        <div className="pt-2">
-                          <a 
-                            href={announcement.attachment_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors bg-primary/10 hover:bg-primary/20 px-2 py-1 rounded"
-                          >
-                            <FileText className="w-3.5 h-3.5" /> View Attachment
-                          </a>
-                        </div>
-                      )}
+                      <span className="text-xs font-bold text-[#4E5666] tracking-widest uppercase whitespace-nowrap sm:ml-4">
+                        {new Date(announcement.date_posted).toLocaleDateString()}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                    <p className="text-sm text-[#8F9BB3] leading-relaxed">
+                      {announcement.content}
+                    </p>
+                    {announcement.attachment_url && (
+                      <div className="pt-2">
+                        <a
+                          href={announcement.attachment_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-xs font-bold tracking-wider text-[#0ABFBC] hover:text-white transition-colors bg-[#0ABFBC]/10 hover:bg-[#0ABFBC] px-3 py-1.5 rounded-lg border border-[#0ABFBC]/30 uppercase"
+                        >
+                          <Link2 className="w-3.5 h-3.5" /> ACCESS ATTACHMENT
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
