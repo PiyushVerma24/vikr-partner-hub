@@ -27,7 +27,7 @@ export default async function DashboardLayout({
     .single()
 
   return (
-    <div className="flex min-h-screen bg-bg-main text-text-main">
+    <div className="flex h-screen overflow-hidden bg-bg-main text-text-main">
       {/* Sidebar */}
       <aside className="w-[252px] border-r bg-bg-card border-border-subtle hidden md:flex flex-col">
 
@@ -57,7 +57,7 @@ export default async function DashboardLayout({
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-2">
+        <nav className="flex-1 overflow-y-auto py-2">
           <div className="text-[9px] uppercase tracking-[0.12em] text-text-meta font-bold px-4 mt-3 mb-1">Main</div>
           <NavItem href="/dashboard" icon={<LayoutDashboard className="w-[15px] h-[15px]" />} label="Dashboard" />
           <NavItem href="/dashboard/products" icon={<Package className="w-[15px] h-[15px]" />} label="Product Catalog" />
@@ -79,7 +79,7 @@ export default async function DashboardLayout({
           )}
         </nav>
 
-        <div className="p-3 border-t border-border-subtle space-y-2">
+        <div className="p-3 border-t border-border-subtle bg-bg-card shrink-0 space-y-2 mt-auto">
           <ThemeToggle />
           <form action="/auth/signout" method="post">
             <button className="flex w-full items-center justify-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-[#FF4C4C] hover:bg-[#FF4C4C]/10 rounded-md transition-all border border-transparent hover:border-[#FF4C4C]/20 uppercase">
