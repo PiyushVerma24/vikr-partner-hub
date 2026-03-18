@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Package, FileText, Filter, Search } from "lucide-react"
 import { getProductsWithDocuments } from "@/app/dashboard/actions/products"
+import { checkIsAdminBoolean } from "@/app/dashboard/actions/admin"
 import { ShareDocumentButton } from "@/components/ShareDocumentButton"
 import Link from "next/link"
 import Image from "next/image"
@@ -12,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { EditProductModal, EditableProduct } from "@/components/EditProductModal"
+import { DeleteProductModal } from "@/components/DeleteProductModal"
 
 // Type Definitions
 type ProductMedia = {
@@ -59,6 +62,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -75,7 +79,13 @@ export default function ProductsPage() {
       setIsLoading(false)
     }
 
+    async function loadAdminStatus() {
+      const res = await checkIsAdminBoolean()
+      setIsAdmin(res)
+    }
+
     loadProducts()
+    loadAdminStatus()
   }, [])
 
   const toggleCategory = (category: string) => {
@@ -138,32 +148,54 @@ export default function ProductsPage() {
             />
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-fit flex items-center gap-2 border-border-subtle bg-bg-main">
-                <Filter className="w-4 h-4" />
-                Categories
-                {selectedCategories.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-[10px]">
-                    {selectedCategories.length}
-                  </Badge>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-bg-card border-border-subtle shadow-md">
-              <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-border-subtle" />
-              {CATEGORIES.map((category) => (
-                <DropdownMenuCheckboxItem
-                  key={category}
-                  checked={selectedCategories.includes(category)}
-                  onCheckedChange={() => toggleCategory(category)}
-                >
-                  {category}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <EditProductModal
+                products={products}
+                onSuccess={() => {
+                  getProductsWithDocuments().then(res => {
+                    if (res.success && res.data) setProducts(res.data as Product[])
+                  })
+                }}
+              />
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-fit flex items-center gap-2 border-border-subtle bg-bg-main">
+                  <Filter className="w-4 h-4" />
+                  Categories
+                  {selectedCategories.length > 0 && (
+                    <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-[10px]">
+                      {selectedCategories.length}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-bg-card border-border-subtle shadow-md">
+                <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-border-subtle" />
+                {CATEGORIES.map((category) => (
+                  <DropdownMenuCheckboxItem
+                    key={category}
+                    checked={selectedCategories.includes(category)}
+                    onCheckedChange={() => toggleCategory(category)}
+                  >
+                    {category}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {isAdmin && (
+              <DeleteProductModal
+                products={products}
+                onSuccess={() => {
+                  getProductsWithDocuments().then(res => {
+                    if (res.success && res.data) setProducts(res.data as Product[])
+                  })
+                }}
+              />
+            )}
+          </div>
         </div>
       </div>
 
