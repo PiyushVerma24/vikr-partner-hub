@@ -197,6 +197,31 @@ export async function resetPartnerPassword(partnerId: string, newPassword: strin
   }
 }
 
+export async function deletePartner(partnerId: string) {
+  const supabase = await createClient()
+
+  try {
+    const user = await requireAdmin(supabase)
+
+    // Prevent self-deletion
+    if (user.id === partnerId) {
+      throw new Error('Cannot delete your own account')
+    }
+
+    const supabaseAdmin = createAdminClient()
+
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(partnerId)
+
+    if (error) throw error
+
+    revalidatePath('/dashboard/admin/users')
+    return { success: true }
+  } catch (error: unknown) {
+    console.error('Error deleting partner:', error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}
+
 // ------------------------------------------------------------------
 // CONTENT MANAGEMENT (Phase 3.4 - Partial)
 // ------------------------------------------------------------------
@@ -252,6 +277,13 @@ export async function createProduct(formData: FormData) {
       })
 
     if (error) throw error
+
+    await supabase.from('announcements').insert({
+      title: `New Product Added: ${name}`,
+      content: `${name} (SKU: ${sku}) is now available in our catalog.`,
+      is_pinned: false,
+      valid_regions: ['GLOBAL'] as any
+    })
 
     revalidatePath('/dashboard/admin/cms')
     return { success: true }
@@ -315,12 +347,24 @@ export async function deleteProducts(ids: string[]) {
 
     if (!ids || ids.length === 0) throw new Error('No product IDs provided')
 
+    const { data: prods } = await supabase.from('products').select('name').in('id', ids)
+
     const { error } = await supabase
       .from('products')
       .delete()
       .in('id', ids)
 
     if (error) throw error
+
+    if (prods && prods.length > 0) {
+      const announcementsToInsert = prods.map(p => ({
+        title: `Product Removed: ${p.name}`,
+        content: `Please note that ${p.name} has been removed from the active catalog.`,
+        is_pinned: false,
+        valid_regions: ['GLOBAL'] as any
+      }))
+      await supabase.from('announcements').insert(announcementsToInsert)
+    }
 
     revalidatePath('/dashboard/products')
     return { success: true }
@@ -390,6 +434,7 @@ export async function createTrainingModule(formData: FormData) {
     const pdf_url = formData.get('pdf_url') as string
     const category = formData.get('category') as string
     const market_segment = formData.get('market_segment') as string
+    const valid_regions = formData.getAll('valid_regions') as string[]
 
     if (!title || !video_url) {
       throw new Error('Title and Video URL are required')
@@ -397,6 +442,8 @@ export async function createTrainingModule(formData: FormData) {
 
     const match = video_url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)
     const youtube_video_id = match ? match[1] : 'unknown_id'
+
+    const finalRegions = valid_regions.length > 0 ? valid_regions : ['GLOBAL']
 
     const { error } = await supabase
       .from('training_hub_videos')
@@ -408,10 +455,18 @@ export async function createTrainingModule(formData: FormData) {
         youtube_video_id,
         pdf_resource_url: pdf_url || null,
         category,
-        market_segment
+        market_segment,
+        valid_regions: finalRegions as any
       })
 
     if (error) throw error
+
+    await supabase.from('announcements').insert({
+      title: `New Training Video: ${title}`,
+      content: `A new training module has been published under ${category}.`,
+      is_pinned: false,
+      valid_regions: finalRegions as any
+    })
 
     revalidatePath('/dashboard/training')
     revalidatePath('/dashboard/admin/cms')
@@ -477,12 +532,24 @@ export async function deleteTrainingModules(ids: string[]) {
 
     if (!ids || ids.length === 0) throw new Error('No video IDs provided')
 
+    const { data: modules } = await supabase.from('training_hub_videos').select('title, valid_regions').in('id', ids)
+
     const { error } = await supabase
       .from('training_hub_videos')
       .delete()
       .in('id', ids)
 
     if (error) throw error
+
+    if (modules && modules.length > 0) {
+      const announcementsToInsert = modules.map(m => ({
+        title: `Training Video Removed: ${m.title}`,
+        content: `The training module "${m.title}" is no longer available.`,
+        is_pinned: false,
+        valid_regions: m.valid_regions
+      }))
+      await supabase.from('announcements').insert(announcementsToInsert)
+    }
 
     revalidatePath('/dashboard/training')
     return { success: true }
@@ -502,10 +569,13 @@ export async function createAnnouncement(formData: FormData) {
     const content = formData.get('content') as string
     const attachment_url = formData.get('attachment_url') as string
     const is_pinned = formData.get('is_pinned') === 'true'
+    const valid_regions = formData.getAll('valid_regions') as string[]
 
     if (!title || !content) {
       throw new Error('Title and Content are required')
     }
+
+    const finalRegions = valid_regions.length > 0 ? valid_regions : ['GLOBAL']
 
     const { error } = await supabase
       .from('announcements')
@@ -513,7 +583,8 @@ export async function createAnnouncement(formData: FormData) {
         title,
         content,
         attachment_url: attachment_url || null,
-        is_pinned
+        is_pinned,
+        valid_regions: finalRegions as Database['public']['Enums']['territory'][]
       })
 
     if (error) throw error

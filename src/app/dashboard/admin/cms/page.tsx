@@ -34,7 +34,7 @@ export default function AdminCMSPage() {
   const [isCreatingSku, setIsCreatingSku] = useState(false)
 
   // Document Form State
-  const [docProductId, setDocProductId] = useState("general")
+  const [docProductId, setDocProductId] = useState("")
   const [docTitle, setDocTitle] = useState("")
   const [docCategory, setDocCategory] = useState("TDS")
   const [documentFile, setDocumentFile] = useState<File | null>(null)
@@ -57,14 +57,32 @@ export default function AdminCMSPage() {
   const [trainDuration, setTrainDuration] = useState("")
   const [trainCategory, setTrainCategory] = useState("Sales")
   const [trainMarketSegment, setTrainMarketSegment] = useState("Hospitality")
+  const [trainSelectedRegions, setTrainSelectedRegions] = useState<string[]>(["GLOBAL"])
   const [isCreatingTraining, setIsCreatingTraining] = useState(false)
+
+  const toggleTrainRegion = (region: string) => {
+    setTrainSelectedRegions(curr =>
+      curr.includes(region)
+        ? curr.filter(r => r !== region)
+        : [...curr, region]
+    )
+  }
 
   // Announcement State
   const [annTitle, setAnnTitle] = useState("")
   const [annContent, setAnnContent] = useState("")
   const [annAttachmentUrl, setAnnAttachmentUrl] = useState("")
   const [annIsPinned, setAnnIsPinned] = useState(false)
+  const [annSelectedRegions, setAnnSelectedRegions] = useState<string[]>(["GLOBAL"])
   const [isCreatingAnn, setIsCreatingAnn] = useState(false)
+
+  const toggleAnnRegion = (region: string) => {
+    setAnnSelectedRegions(curr =>
+      curr.includes(region)
+        ? curr.filter(r => r !== region)
+        : [...curr, region]
+    )
+  }
 
   // Products Data
   const [products, setProducts] = useState<{ id: string, name: string, sku: string }[]>([])
@@ -140,8 +158,8 @@ export default function AdminCMSPage() {
       return
     }
 
-    if (!docTitle || !docCategory) {
-      setUploadError("Please fill out all document details.")
+    if (!docProductId || !docTitle || !docCategory) {
+      setUploadError("Please fill out all document details and select a product.")
       return
     }
 
@@ -170,7 +188,7 @@ export default function AdminCMSPage() {
       alert(`Document uploaded successfully for regions: ${selectedRegions.join(", ")}`)
 
       // Reset form
-      setDocProductId("general")
+      setDocProductId("")
       setDocTitle("")
       setDocumentFile(null)
       setSelectedRegions([])
@@ -226,6 +244,7 @@ export default function AdminCMSPage() {
     formData.append("pdf_url", trainPdfUrl)
     formData.append("category", trainCategory)
     formData.append("market_segment", trainMarketSegment)
+    trainSelectedRegions.forEach(region => formData.append("valid_regions", region))
 
     const result = await createTrainingModule(formData)
     if (result.success) {
@@ -235,6 +254,7 @@ export default function AdminCMSPage() {
       setTrainVideoUrl("")
       setTrainDuration("")
       setTrainPdfUrl("")
+      setTrainSelectedRegions(["GLOBAL"])
     } else {
       alert(`Error creating training module: ${result.error}`)
     }
@@ -245,6 +265,10 @@ export default function AdminCMSPage() {
   const handleCreateAnnouncement = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!annTitle || !annContent) return
+    if (annSelectedRegions.length === 0) {
+      alert("Please select at least one region for the announcement.")
+      return
+    }
     setIsCreatingAnn(true)
 
     const formData = new FormData()
@@ -252,6 +276,7 @@ export default function AdminCMSPage() {
     formData.append("content", annContent)
     if (annAttachmentUrl) formData.append("attachment_url", annAttachmentUrl)
     formData.append("is_pinned", annIsPinned ? "true" : "false")
+    annSelectedRegions.forEach(region => formData.append("valid_regions", region))
 
     const result = await createAnnouncement(formData)
     if (result.success) {
@@ -260,6 +285,7 @@ export default function AdminCMSPage() {
       setAnnContent("")
       setAnnAttachmentUrl("")
       setAnnIsPinned(false)
+      setAnnSelectedRegions(["GLOBAL"])
     } else {
       alert(`Error creating announcement: ${result.error}`)
     }
@@ -394,7 +420,6 @@ export default function AdminCMSPage() {
                       <SelectValue placeholder="Select a product..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="general">None (General Document)</SelectItem>
                       {products.map(p => (
                         <SelectItem key={p.id} value={p.id}>{p.name} ({p.sku})</SelectItem>
                       ))}
@@ -410,7 +435,8 @@ export default function AdminCMSPage() {
                     <SelectContent>
                       <SelectItem value="TDS">TDS (Technical Data)</SelectItem>
                       <SelectItem value="MSDS">MSDS (Safety Data)</SelectItem>
-                      <SelectItem value="MARKETING">Marketing</SelectItem>
+                      <SelectItem value="CERTIFICATE">Certificate</SelectItem>
+                      <SelectItem value="MANUAL">Manual</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -439,7 +465,7 @@ export default function AdminCMSPage() {
 
               <div className="space-y-3">
                 <Label>Valid Regions (Required)</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-4 py-1">
                   {REGIONS.map((region) => (
                     <div key={region} className="flex items-center space-x-2">
                       <Checkbox
@@ -618,6 +644,27 @@ export default function AdminCMSPage() {
                   onChange={(e) => setTrainPdfUrl(e.target.value)}
                 />
               </div>
+
+              <div className="space-y-3 pt-2">
+                <Label>Valid Regions (Required)</Label>
+                <div className="grid grid-cols-2 gap-4 py-1">
+                  {REGIONS.map((region) => (
+                    <div key={`train-${region}`} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`train-region-${region}`}
+                        checked={trainSelectedRegions.includes(region)}
+                        onCheckedChange={() => toggleTrainRegion(region)}
+                      />
+                      <label
+                        htmlFor={`train-region-${region}`}
+                        className="text-sm font-medium leading-none cursor-pointer"
+                      >
+                        {region}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </CardContent>
             <CardFooter>
               <Button type="submit" className="w-full" variant="outline" disabled={isCreatingTraining}>
@@ -668,6 +715,27 @@ export default function AdminCMSPage() {
                   onChange={(e) => setAnnAttachmentUrl(e.target.value)}
                 />
               </div>
+              <div className="space-y-3 pt-2">
+                <Label>Valid Regions (Required)</Label>
+                <div className="grid grid-cols-2 gap-4 py-1">
+                  {REGIONS.map((region) => (
+                    <div key={`ann-${region}`} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`ann-region-${region}`}
+                        checked={annSelectedRegions.includes(region)}
+                        onCheckedChange={() => toggleAnnRegion(region)}
+                      />
+                      <label
+                        htmlFor={`ann-region-${region}`}
+                        className="text-sm font-medium leading-none cursor-pointer"
+                      >
+                        {region}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex items-center space-x-2 pt-2">
                 <Checkbox
                   id="annIsPinned"
