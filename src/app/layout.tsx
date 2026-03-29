@@ -32,6 +32,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 export const metadata: Metadata = {
   title: "VIKR Partner Hub",
   description: "Your central platform for product information, training, announcements and partner support.",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
 };
 
 export default function RootLayout({

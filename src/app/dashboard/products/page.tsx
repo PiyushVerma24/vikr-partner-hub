@@ -159,23 +159,23 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto flex flex-col gap-6">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto flex flex-col gap-4 md:gap-6 w-full">
       {/* Top Header & Filters */}
-      <div className="flex flex-col gap-4">
-        <h2 className="text-2xl font-semibold tracking-tight">Product Catalog</h2>
+      <div className="flex flex-col gap-3 md:gap-4">
+        <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Product Catalog</h2>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="relative w-full max-w-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4">
+          <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
             <Input
-              placeholder="Search products by name..."
+              placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 w-full bg-bg-main border-border-subtle focus-visible:ring-1 focus-visible:ring-text-brand"
+              className="pl-9 w-full text-sm bg-bg-main border-border-subtle focus-visible:ring-1 focus-visible:ring-text-brand"
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {isAdmin && (
               <EditProductModal
                 products={products}
@@ -237,13 +237,13 @@ export default function ProductsPage() {
             {error}
           </div>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {filteredProducts.map((product) => (
               <Dialog key={product.id}>
                 <DialogTrigger asChild>
-                  <Card className="w-full overflow-hidden transition-all hover:shadow-md cursor-pointer border-border-subtle flex flex-row min-h-[200px] max-h-[300px]">
+                  <Card className="w-full overflow-hidden transition-all hover:shadow-md cursor-pointer border-border-subtle flex flex-col sm:flex-row min-h-[200px] sm:min-h-[250px]">
                     {/* Left side: Tall Image Placeholder */}
-                    <div className="relative w-[35%] min-w-[120px] max-w-[200px] bg-bg-hover flex items-center justify-center p-6 border-r border-border-subtle transition-colors shrink-0">
+                    <div className="relative w-full sm:w-[40%] h-[200px] sm:h-auto bg-bg-hover flex items-center justify-center p-4 sm:p-6 border-b sm:border-b-0 sm:border-r border-border-subtle transition-colors shrink-0">
                       {product.product_media && product.product_media.length > 0 ? (
                         <Image
                           src={product.product_media[0].media_url}
@@ -257,28 +257,28 @@ export default function ProductsPage() {
                     </div>
 
                     {/* Right side: Product Data */}
-                    <CardContent className="p-6 flex flex-col justify-center flex-1 overflow-hidden">
+                    <CardContent className="p-4 sm:p-6 flex flex-col justify-center flex-1 overflow-hidden">
                       {/* Category */}
                       {product.category && (
-                        <span className="text-xs font-bold tracking-widest uppercase text-primary mb-2 block truncate">
+                        <span className="text-xs font-bold tracking-widest uppercase text-primary mb-1 sm:mb-2 block truncate">
                           {product.category}
                         </span>
                       )}
 
                       {/* Product Name */}
-                      <div className="mb-2 shrink-0">
-                        <h3 className="font-extrabold text-xl md:text-2xl text-text-main leading-tight pr-2">
+                      <div className="mb-1 sm:mb-2 shrink-0">
+                        <h3 className="font-extrabold text-lg sm:text-xl lg:text-2xl text-text-main leading-snug pr-2">
                           {product.name}
                         </h3>
                       </div>
 
                       {/* Product USP */}
                       {product.usp ? (
-                        <p className="text-sm text-text-muted mt-2 line-clamp-4 leading-relaxed font-medium">
+                        <p className="text-xs sm:text-sm text-text-muted mt-2 line-clamp-3 sm:line-clamp-4 leading-relaxed font-medium">
                           {product.usp}
                         </p>
                       ) : (
-                        <p className="text-sm text-text-meta italic mt-2">
+                        <p className="text-xs sm:text-sm text-text-meta italic mt-2">
                           No USP detailed for this product.
                         </p>
                       )}
@@ -287,7 +287,7 @@ export default function ProductsPage() {
                 </DialogTrigger>
 
                 <DialogContent
-                  className="max-w-5xl p-0 overflow-hidden bg-bg-card gap-0 border-border-subtle"
+                  className="max-w-5xl p-0 overflow-hidden bg-bg-card gap-0 border-border-subtle w-[calc(100vw-32px)] max-h-[calc(100vh-80px)] sm:max-h-[85vh]"
                   onPointerDownOutside={(e) => { if (viewingDoc) e.preventDefault(); }}
                   onInteractOutside={(e) => { if (viewingDoc) e.preventDefault(); }}
                   onEscapeKeyDown={(e) => {
@@ -297,13 +297,13 @@ export default function ProductsPage() {
                     }
                   }}
                 >
-                  <div className="flex flex-col md:flex-row max-h-[85vh]">
+                  <div className="flex flex-col lg:flex-row max-h-[calc(100vh-100px)] sm:max-h-[85vh]">
                     {/* Dialog Left: Large Image & Varieties */}
                     {getVarietiesForProduct(product.name).length > 0 ? (
-                      <div className="w-full md:w-[45%] bg-bg-hover flex flex-col p-8 shrink-0 border-b md:border-b-0 md:border-r border-border-subtle overflow-y-auto">
+                      <div className="w-full lg:w-[45%] bg-bg-hover flex flex-col p-4 sm:p-8 shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle overflow-y-auto">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <div className="w-full h-[350px] flex items-center justify-center shrink-0 mb-6 bg-transparent cursor-pointer hover:opacity-80 transition-opacity">
+                            <div className="w-full h-[200px] sm:h-[280px] lg:h-[350px] flex items-center justify-center shrink-0 mb-4 sm:mb-6 bg-transparent cursor-pointer hover:opacity-80 transition-opacity">
                               {product.product_media && product.product_media.length > 0 ? (
                                 <img
                                   src={product.product_media[0].media_url}
@@ -332,9 +332,9 @@ export default function ProductsPage() {
                           </DialogContent>
                         </Dialog>
 
-                        <div className="w-full mt-6 shrink-0">
-                          <h4 className="text-sm font-bold uppercase tracking-wider text-text-muted mb-4 border-b border-border-subtle pb-2">Varieties</h4>
-                          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div className="w-full mt-4 sm:mt-6 shrink-0">
+                          <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-text-muted mb-3 sm:mb-4 border-b border-border-subtle pb-2">Varieties</h4>
+                          <div className="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
                             {getVarietiesForProduct(product.name).map(variant => (
                               <Dialog key={variant.id}>
                                 <DialogTrigger asChild>
@@ -374,7 +374,7 @@ export default function ProductsPage() {
                     ) : (
                       <Dialog>
                         <DialogTrigger asChild>
-                          <div className="relative w-full md:w-[45%] bg-bg-hover flex items-center justify-center p-8 shrink-0 min-h-[400px] border-b md:border-b-0 md:border-r border-border-subtle cursor-pointer hover:opacity-90 transition-opacity">
+                          <div className="relative w-full lg:w-[45%] bg-bg-hover flex items-center justify-center p-4 sm:p-8 shrink-0 min-h-[300px] sm:min-h-[400px] border-b lg:border-b-0 lg:border-r border-border-subtle cursor-pointer hover:opacity-90 transition-opacity">
                             {product.product_media && product.product_media.length > 0 ? (
                               <Image
                                 src={product.product_media[0].media_url}
@@ -406,14 +406,14 @@ export default function ProductsPage() {
                     )}
 
                     {/* Dialog Right: Scrollable Content */}
-                    <div className="flex-1 p-6 md:p-10 overflow-y-auto w-full">
-                      <DialogHeader className="mb-8 text-left space-y-2">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto w-full">
+                      <DialogHeader className="mb-6 sm:mb-8 text-left space-y-2">
                         {product.category && (
                           <span className="text-xs font-bold tracking-widest uppercase text-primary block">
                             {product.category}
                           </span>
                         )}
-                        <DialogTitle className="text-3xl md:text-4xl font-extrabold text-text-main leading-tight">
+                        <DialogTitle className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-text-main leading-tight">
                           {product.name}
                         </DialogTitle>
                         <DialogDescription className="sr-only">
