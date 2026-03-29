@@ -2,12 +2,7 @@
 import type { NextConfig } from "next";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const withPWA = require("next-pwa")({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
-  register: true,
-  skipWaiting: true,
-});
+const withPWA = require("next-pwa");
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -20,6 +15,14 @@ const nextConfig: NextConfig = {
         hostname: "rqbnsffbqthxckzifefk.supabase.co",
       },
     ],
+  },
+  // next-pwa@2.x reads PWA options from the top-level 'pwa' key
+  // @ts-expect-error - next-pwa adds pwa config to NextConfig
+  pwa: {
+    dest: "public",
+    disable: process.env.NODE_ENV === "development",
+    register: true,
+    skipWaiting: true,
   },
 };
 
