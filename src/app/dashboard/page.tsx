@@ -1,10 +1,5 @@
-"use client"
-
-import { useState, useEffect } from "react"
 import { Package, FileText, Video, Bell, Link2 } from "lucide-react"
-import { getAnnouncements, getTrainingModules } from "@/app/dashboard/actions/content"
-import { getProductsWithDocuments } from "@/app/dashboard/actions/products"
-import { getAllDocuments } from "@/app/dashboard/actions/document"
+import { createClient } from "@/utils/supabase/server"
 
 type Announcement = {
   id: string
@@ -15,45 +10,24 @@ type Announcement = {
   attachment_url: string | null
 }
 
-export default function DashboardPage() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [productCount, setProductCount] = useState<number | null>(null)
-  const [trainingCount, setTrainingCount] = useState<number | null>(null)
-  const [documentCount, setDocumentCount] = useState<number | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+export default async function DashboardPage() {
+  const supabase = await createClient()
 
-  useEffect(() => {
+  const [productsRes, trainingRes, docsRes, announcementsRes] = await Promise.all([
+    supabase.from('products').select('id', { count: 'exact', head: true }).eq('is_active', true),
+    supabase.from('training_hub_videos').select('id', { count: 'exact', head: true }),
+    supabase.from('documents').select('id', { count: 'exact', head: true }),
+    supabase.from('announcements')
+      .select('*')
+      .order('is_pinned', { ascending: false })
+      .order('date_posted', { ascending: false })
+      .limit(5),
+  ])
 
-    async function loadData() {
-      setIsLoading(true)
-
-      const [announcementsRes, productsRes, trainingRes, docsRes] = await Promise.all([
-        getAnnouncements(5),
-        getProductsWithDocuments(),
-        getTrainingModules(),
-        getAllDocuments(),
-      ])
-
-      if (announcementsRes.success && announcementsRes.data) {
-        setAnnouncements(announcementsRes.data as Announcement[])
-      }
-      if (productsRes.success && productsRes.data) {
-        setProductCount((productsRes.data as unknown[]).length)
-      }
-      if (trainingRes.success && trainingRes.data) {
-        setTrainingCount((trainingRes.data as unknown[]).length)
-      }
-      if (docsRes.success && docsRes.data) {
-        setDocumentCount((docsRes.data as unknown[]).length)
-      }
-
-      setIsLoading(false)
-    }
-
-    loadData()
-  }, [])
-
-  const fmt = (n: number | null) => (isLoading ? '…' : n === null ? '--' : String(n))
+  const productCount = productsRes.count ?? 0
+  const trainingCount = trainingRes.count ?? 0
+  const documentCount = docsRes.count ?? 0
+  const announcements: Announcement[] = (announcementsRes.data ?? []) as Announcement[]
 
   return (
     <div className="p-4 md:p-8 space-y-4 md:space-y-6 bg-bg-main min-h-full transition-colors duration-200 w-full">
@@ -67,7 +41,6 @@ export default function DashboardPage() {
         <p className="relative z-10 mt-1 max-w-xl text-xs sm:text-sm leading-relaxed text-text-muted">
           Your central platform for product information, training, announcements and partner support — powered by Vikr Bioscience Pvt. Ltd., India.
         </p>
-
       </div>
 
       {/* Stat cards */}
@@ -75,25 +48,25 @@ export default function DashboardPage() {
         <div className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md transition-colors hover:border-brand-accent">
           <Package className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
           <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Products</div>
-          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{fmt(productCount)}</div>
+          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{productCount}</div>
           <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">In product catalog</div>
         </div>
         <div className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md transition-colors hover:border-brand-accent">
           <Video className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
           <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Training Modules</div>
-          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{fmt(trainingCount)}</div>
+          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{trainingCount}</div>
           <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">Available to you</div>
         </div>
         <div className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md transition-colors hover:border-brand-accent">
           <FileText className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
           <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Documents</div>
-          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{fmt(documentCount)}</div>
+          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{documentCount}</div>
           <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">TDS &amp; MSDS</div>
         </div>
         <div className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md transition-colors hover:border-brand-accent">
           <Bell className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
           <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Announcements</div>
-          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{fmt(announcements.length)}</div>
+          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{announcements.length}</div>
           <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">Latest updates</div>
         </div>
       </div>
@@ -110,11 +83,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="p-4 sm:p-6">
-            {isLoading ? (
-              <div className="py-12 flex justify-center items-center">
-                <div className="w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : announcements.length === 0 ? (
+            {announcements.length === 0 ? (
               <div className="py-8 text-center text-sm font-medium tracking-wide text-text-meta uppercase">No announcements</div>
             ) : (
               <div className="space-y-4 sm:space-y-6">
