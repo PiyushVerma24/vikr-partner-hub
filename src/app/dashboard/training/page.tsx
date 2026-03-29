@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
-import { PlayCircle, FileText, Search } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from "@/components/ui/dialog"
+import { PlayCircle, FileText, Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { getTrainingModules } from "@/app/dashboard/actions/content"
 import { checkIsAdminBoolean } from "@/app/dashboard/actions/admin"
@@ -190,6 +190,14 @@ export default function TrainingHubPage() {
                         <DialogTitle>{module.title}</DialogTitle>
                         <DialogDescription>Video player for {module.title}</DialogDescription>
                       </DialogHeader>
+                      {/* Close bar */}
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle bg-bg-card">
+                        <span className="text-sm font-semibold text-text-main truncate pr-4">{module.title}</span>
+                        <DialogClose className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-bg-hover hover:bg-[#FF4C4C]/10 hover:text-[#FF4C4C] border border-border-subtle hover:border-[#FF4C4C]/30 text-text-muted transition-all text-xs font-bold uppercase tracking-wide shrink-0">
+                          <X className="w-3.5 h-3.5" />
+                          Close
+                        </DialogClose>
+                      </div>
                       <div className="relative w-full aspect-video bg-black flex items-center justify-center">
                         <iframe
                           className="absolute inset-0 w-full h-full border-0"
