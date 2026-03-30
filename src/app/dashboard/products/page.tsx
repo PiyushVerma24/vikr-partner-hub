@@ -241,45 +241,38 @@ export default function ProductsPage() {
             {filteredProducts.map((product) => (
               <Dialog key={product.id}>
                 <DialogTrigger asChild>
-                  <Card className="w-full overflow-hidden transition-all hover:shadow-md cursor-pointer border-border-subtle flex flex-col sm:flex-row min-h-[200px] sm:min-h-[250px]">
-                    {/* Left side: Tall Image Placeholder */}
-                    <div className="relative w-full sm:w-[40%] h-[200px] sm:h-auto bg-bg-hover flex items-center justify-center p-4 sm:p-6 border-b sm:border-b-0 sm:border-r border-border-subtle transition-colors shrink-0">
+                  <Card className="w-full overflow-hidden transition-all hover:shadow-md cursor-pointer border-border-subtle flex flex-row min-h-[110px] sm:min-h-[160px]">
+                    {/* Image */}
+                    <div className="relative w-[90px] sm:w-[38%] bg-bg-hover flex items-center justify-center p-2 sm:p-5 border-r border-border-subtle transition-colors shrink-0">
                       {product.product_media && product.product_media.length > 0 ? (
                         <Image
                           src={product.product_media[0].media_url}
                           alt={product.name}
                           fill
-                          className="object-contain p-4"
+                          className="object-contain p-2 sm:p-4"
                         />
                       ) : (
-                        <Package className="w-16 h-16 text-text-muted" strokeWidth={1} />
+                        <Package className="w-8 sm:w-12 h-8 sm:h-12 text-text-muted" strokeWidth={1} />
                       )}
                     </div>
 
-                    {/* Right side: Product Data */}
-                    <CardContent className="p-4 sm:p-6 flex flex-col justify-center flex-1 overflow-hidden">
-                      {/* Category */}
+                    {/* Content */}
+                    <CardContent className="p-3 sm:p-5 flex flex-col justify-center flex-1 overflow-hidden min-w-0">
                       {product.category && (
-                        <span className="text-xs font-bold tracking-widest uppercase text-primary mb-1 sm:mb-2 block truncate">
+                        <span className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-primary mb-1 block truncate">
                           {product.category}
                         </span>
                       )}
-
-                      {/* Product Name */}
-                      <div className="mb-1 sm:mb-2 shrink-0">
-                        <h3 className="font-extrabold text-lg sm:text-xl lg:text-2xl text-text-main leading-snug pr-2">
-                          {product.name}
-                        </h3>
-                      </div>
-
-                      {/* Product USP */}
+                      <h3 className="font-bold text-sm sm:text-base lg:text-lg text-text-main leading-snug line-clamp-2">
+                        {product.name}
+                      </h3>
                       {product.usp ? (
-                        <p className="text-xs sm:text-sm text-text-muted mt-2 line-clamp-3 sm:line-clamp-4 leading-relaxed font-medium">
+                        <p className="text-[11px] sm:text-xs text-text-muted mt-1 sm:mt-2 line-clamp-2 leading-relaxed">
                           {product.usp}
                         </p>
                       ) : (
-                        <p className="text-xs sm:text-sm text-text-meta italic mt-2">
-                          No USP detailed for this product.
+                        <p className="text-[11px] sm:text-xs text-text-meta italic mt-1 sm:mt-2">
+                          No description available.
                         </p>
                       )}
                     </CardContent>
