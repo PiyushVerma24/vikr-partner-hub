@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Package, FileText, Video, Bell, Link2 } from "lucide-react"
 import { getAnnouncements, getTrainingModules } from "@/app/dashboard/actions/content"
 import { getProductsWithDocuments } from "@/app/dashboard/actions/products"
@@ -72,24 +73,24 @@ export default function DashboardPage() {
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
+        <Link href="/dashboard/products" className="block rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
           <Package className="mb-3 h-5 w-5 text-text-main" />
           <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Products</div>
           <div className="mt-1 text-[26px] font-extrabold leading-none text-text-main">{fmt(productCount)}</div>
           <div className="mt-1 text-[11px] font-semibold text-brand-accent">In product catalog</div>
-        </div>
-        <div className="rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
+        </Link>
+        <Link href="/dashboard/training" className="block rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
           <Video className="mb-3 h-5 w-5 text-text-main" />
           <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Training Modules</div>
           <div className="mt-1 text-[26px] font-extrabold leading-none text-text-main">{fmt(trainingCount)}</div>
           <div className="mt-1 text-[11px] font-semibold text-brand-accent">Available to you</div>
-        </div>
-        <div className="rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
+        </Link>
+        <Link href="/dashboard/documents" className="block rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
           <FileText className="mb-3 h-5 w-5 text-text-main" />
           <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Documents</div>
           <div className="mt-1 text-[26px] font-extrabold leading-none text-text-main">{fmt(documentCount)}</div>
           <div className="mt-1 text-[11px] font-semibold text-brand-accent">TDS &amp; MSDS</div>
-        </div>
+        </Link>
         <div className="rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
           <Bell className="mb-3 h-5 w-5 text-text-main" />
           <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Announcements</div>

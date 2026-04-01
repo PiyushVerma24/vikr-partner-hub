@@ -41,13 +41,13 @@ export default async function DashboardLayout({
       <aside className="w-[252px] border-r bg-bg-card border-border-subtle hidden md:flex flex-col">
 
         {/* Logo */}
-        <div className="px-4 py-4 border-b border-border-subtle">
+        <div className="px-4 pt-5 pb-4 border-b border-border-subtle">
           <img
             src="/vikr-logo-new.svg"
             alt="VIKR Bioscience"
             className="h-[38px] w-auto max-w-[180px] object-contain object-left"
           />
-          <div className="mt-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-text-muted">
+          <div className="-mt-2 text-[9px] font-semibold uppercase tracking-[0.1em] text-text-muted">
             Partner Hub &middot; Vikr Bioscience Pvt. Ltd.
           </div>
         </div>
