@@ -5,6 +5,7 @@ import { NavItem } from "@/components/nav-item"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Poppins } from "next/font/google"
 import { DashboardFontActivator } from "@/components/dashboard-font-activator"
+import { MobileNav } from "@/components/mobile-nav"
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -34,11 +35,25 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single()
 
+  const navItems = [
+    { href: "/dashboard", icon: <LayoutDashboard className="w-[15px] h-[15px]" />, label: "Dashboard" },
+    { href: "/dashboard/products", icon: <Package className="w-[15px] h-[15px]" />, label: "Product Catalog" },
+    { href: "/dashboard/training", icon: <Video className="w-[15px] h-[15px]" />, label: "Training Hub" },
+    { href: "/dashboard/meetings", icon: <Users className="w-[15px] h-[15px]" />, label: "Meetings" },
+    { href: "/dashboard/support", icon: <LifeBuoy className="w-[15px] h-[15px]" />, label: "Support Requests" },
+    { href: "/dashboard/documents", icon: <FileText className="w-[15px] h-[15px]" />, label: "Documents" },
+    ...(profile?.is_admin === true ? [
+      { href: "/dashboard/admin/users", icon: <Key className="w-[15px] h-[15px]" />, label: "Partner Access" },
+      { href: "/dashboard/admin/cms", icon: <Database className="w-[15px] h-[15px]" />, label: "Data Control" },
+    ] : [])
+  ]
+
   return (
-    <div className={`dashboard-scope flex h-screen overflow-hidden bg-bg-main text-text-main ${poppins.variable} ${poppins.className}`}>
+    <div className={`dashboard-scope flex flex-col md:flex-row min-h-screen bg-bg-main text-text-main ${poppins.variable} ${poppins.className}`}>
       <DashboardFontActivator />
+      <MobileNav navItems={navItems} logo="/vikr-logo-new.svg" territory={profile?.territory_code} />
       {/* Sidebar */}
-      <aside className="w-[252px] border-r bg-bg-card border-border-subtle hidden md:flex flex-col">
+      <aside className="w-[252px] border-r bg-bg-card border-border-subtle hidden md:flex flex-col shrink-0">
 
         {/* Logo */}
         <div className="px-4 pt-5 pb-4 border-b border-border-subtle">
@@ -99,7 +114,7 @@ export default async function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto w-full">
         {children}
       </main>
     </div>
