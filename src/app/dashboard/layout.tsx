@@ -1,54 +1,48 @@
-import { createClient } from "@/utils/supabase/server"
-import { getCachedProfile } from "@/utils/supabase/cached-queries"
-import { redirect } from "next/navigation"
+"use client"
+
 import { Users, FileText, Package, LayoutDashboard, Video, LifeBuoy, Database, Key } from "lucide-react"
 import { NavItem } from "@/components/nav-item"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { MobileNav } from "@/components/mobile-nav"
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const supabase = await createClient()
+import { DashboardProvider, useDashboard } from "@/contexts/DashboardContext"
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+const navBase = [
+  { href: "/dashboard", icon: <LayoutDashboard className="w-[15px] h-[15px]" />, label: "Dashboard" },
+  { href: "/dashboard/products", icon: <Package className="w-[15px] h-[15px]" />, label: "Product Catalog" },
+  { href: "/dashboard/training", icon: <Video className="w-[15px] h-[15px]" />, label: "Training Hub" },
+  { href: "/dashboard/meetings", icon: <Users className="w-[15px] h-[15px]" />, label: "Meetings" },
+  { href: "/dashboard/support", icon: <LifeBuoy className="w-[15px] h-[15px]" />, label: "Support Requests" },
+  { href: "/dashboard/documents", icon: <FileText className="w-[15px] h-[15px]" />, label: "Documents" },
+]
 
-  if (!user) {
-    return redirect("/login")
-  }
+const buildTime = process.env.NEXT_PUBLIC_BUILD_TIME
+  ? new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "2-digit", month: "short", year: "numeric",
+      hour: "2-digit", minute: "2-digit", hour12: true,
+    }) + " IST"
+  : "—"
 
-  // Use cached profile — avoids a fresh DB round trip on every layout render
-  const profile = await getCachedProfile(user.id)
+function Sidebar() {
+  const { profile, isAdmin } = useDashboard()
 
   const navItems = [
-    { href: "/dashboard", icon: <LayoutDashboard className="w-[15px] h-[15px]" />, label: "Dashboard" },
-    { href: "/dashboard/products", icon: <Package className="w-[15px] h-[15px]" />, label: "Product Catalog" },
-    { href: "/dashboard/training", icon: <Video className="w-[15px] h-[15px]" />, label: "Training Hub" },
-    { href: "/dashboard/meetings", icon: <Users className="w-[15px] h-[15px]" />, label: "Meetings" },
-    { href: "/dashboard/support", icon: <LifeBuoy className="w-[15px] h-[15px]" />, label: "Support Requests" },
-    { href: "/dashboard/documents", icon: <FileText className="w-[15px] h-[15px]" />, label: "Documents" },
-    ...(profile?.is_admin === true ? [
+    ...navBase,
+    ...(isAdmin ? [
       { href: "/dashboard/admin/users", icon: <Key className="w-[15px] h-[15px]" />, label: "Partner Access" },
       { href: "/dashboard/admin/cms", icon: <Database className="w-[15px] h-[15px]" />, label: "Data Control" },
     ] : [])
   ]
 
   return (
-    <div className="dashboard-scope flex flex-col md:flex-row min-h-screen bg-bg-main text-text-main">
-      <MobileNav navItems={navItems} logo="/vikr-logo-new.svg" territory={profile?.territory_code} />
-      {/* Sidebar */}
-      <aside className="w-[252px] border-r bg-bg-card border-border-subtle hidden md:flex flex-col shrink-0">
+    <>
+      <MobileNav navItems={navItems} logo="/vikr-logo-new.svg" territory={profile?.territory_code ?? undefined} />
 
+      {/* Desktop sidebar */}
+      <aside className="w-[252px] border-r bg-bg-card border-border-subtle hidden md:flex flex-col shrink-0">
         {/* Logo */}
         <div className="px-4 pt-5 pb-4 border-b border-border-subtle">
-          <img
-            src="/vikr-logo-new.svg"
-            alt="VIKR Bioscience"
-            className="h-[38px] w-auto max-w-[180px] object-contain object-left"
-          />
+          <img src="/vikr-logo-new.svg" alt="VIKR Bioscience" className="h-[38px] w-auto max-w-[180px] object-contain object-left" />
           <div className="-mt-2 text-[9px] font-semibold uppercase tracking-[0.1em] text-text-muted">
             Partner Hub &middot; Vikr Bioscience Pvt. Ltd.
           </div>
@@ -57,12 +51,12 @@ export default async function DashboardLayout({
         {/* User block */}
         <div className="px-4 py-3 border-b border-border-subtle flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a3a5c] to-[#0a8cc4] flex items-center justify-center text-[11px] font-extrabold text-white shrink-0">
-            {profile?.territory_code?.slice(0, 2) || "VI"}
+            {profile?.territory_code?.slice(0, 2) ?? "VI"}
           </div>
           <div className="min-w-0">
             <div className="text-[11px] font-bold truncate text-text-main">Distributor Partner</div>
             <div className="text-[10px] font-semibold text-text-brand">
-              Region: {profile?.territory_code || "Unknown"}
+              Region: {profile?.territory_code ?? "…"}
             </div>
           </div>
         </div>
@@ -81,7 +75,7 @@ export default async function DashboardLayout({
           <div className="text-[9px] uppercase tracking-[0.12em] text-text-meta font-bold px-4 mt-4 mb-1">Resources</div>
           <NavItem href="/dashboard/documents" icon={<FileText className="w-[15px] h-[15px]" />} label="Documents" />
 
-          {profile?.is_admin === true && (
+          {isAdmin && (
             <>
               <div className="text-[9px] uppercase tracking-[0.12em] text-text-meta font-bold px-4 mt-4 mb-1">Admin</div>
               <NavItem href="/dashboard/admin/users" icon={<Key className="w-[15px] h-[15px]" />} label="Partner Access" />
@@ -97,34 +91,26 @@ export default async function DashboardLayout({
               Sign Out
             </button>
           </form>
-          {/* About App */}
           <div className="px-1 pt-1 border-t border-border-subtle/50">
             <div className="text-[9px] font-bold uppercase tracking-[0.1em] text-text-meta mb-0.5">About App</div>
-            <div className="text-[10px] font-semibold text-text-muted">
-              v{process.env.NEXT_PUBLIC_APP_VERSION}
-            </div>
-            <div className="text-[9px] text-text-meta leading-tight">
-              {process.env.NEXT_PUBLIC_BUILD_TIME
-                ? new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString('en-IN', {
-                    timeZone: 'Asia/Kolkata',
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true,
-                  }) + ' IST'
-                : '—'}
-            </div>
+            <div className="text-[10px] font-semibold text-text-muted">v{process.env.NEXT_PUBLIC_APP_VERSION}</div>
+            <div className="text-[9px] text-text-meta leading-tight">{buildTime}</div>
           </div>
         </div>
       </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto w-full pb-safe">
-        {children}
-      </main>
-    </div>
+    </>
   )
 }
 
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <DashboardProvider>
+      <div className="dashboard-scope flex flex-col md:flex-row min-h-screen bg-bg-main text-text-main">
+        <Sidebar />
+        <main className="flex-1 overflow-y-auto w-full pb-safe">
+          {children}
+        </main>
+      </div>
+    </DashboardProvider>
+  )
+}

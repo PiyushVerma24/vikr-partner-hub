@@ -1,12 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Package, FileText, Filter, Search, X, Loader2 } from "lucide-react"
 import { getSecureDocumentUrl } from "@/app/dashboard/actions/document"
-import { getProductsWithDocuments } from "@/app/dashboard/actions/products"
 import { getProductById } from "@/app/dashboard/actions/product-details"
 import { ShareDocumentButton } from "@/components/ShareDocumentButton"
 import Image from "next/image"
@@ -16,6 +15,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EditProductModal, EditableProduct } from "@/components/EditProductModal"
 import { DeleteProductModal } from "@/components/DeleteProductModal"
+import { createClient } from "@/utils/supabase/client"
+import { useDashboard } from "@/contexts/DashboardContext"
 
 // Type Definitions
 type ProductMedia = {
@@ -64,13 +65,23 @@ const CATEGORIES = [
   "MEDICAL"
 ]
 
-type Props = { initialProducts: ProductListItem[]; isAdmin: boolean }
-export function ProductsClient({ initialProducts, isAdmin: initialIsAdmin }: Props) {
-  const [products, setProducts] = useState<ProductListItem[]>(initialProducts)
-  const [isAdmin, setIsAdmin] = useState(initialIsAdmin)
+export function ProductsPage() {
+  const { isAdmin } = useDashboard()
+  const [products, setProducts] = useState<ProductListItem[]>([])
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState("")
+
+  const fetchProducts = async () => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('products')
+      .select('id, sku, name, description, category, ph_level, usp, features_benefits, applications, ingredients, directions_to_use, product_media(id, media_url, type)')
+      .order('name')
+    if (data) setProducts(data as ProductListItem[])
+  }
+
+  useEffect(() => { fetchProducts() }, [])
 
   // Dialog state — single shared dialog, lazy-loaded detail
   const [openProduct, setOpenProduct] = useState<ProductListItem | null>(null)
@@ -195,11 +206,7 @@ export function ProductsClient({ initialProducts, isAdmin: initialIsAdmin }: Pro
             {isAdmin && (
               <EditProductModal
                 products={products as EditableProduct[]}
-                onSuccess={() => {
-                  getProductsWithDocuments().then(res => {
-                    if (res.success && res.data) setProducts(res.data as ProductListItem[])
-                  })
-                }}
+                onSuccess={fetchProducts}
               />
             )}
             <DropdownMenu>
@@ -231,11 +238,7 @@ export function ProductsClient({ initialProducts, isAdmin: initialIsAdmin }: Pro
             {isAdmin && (
               <DeleteProductModal
                 products={products as EditableProduct[]}
-                onSuccess={() => {
-                  getProductsWithDocuments().then(res => {
-                    if (res.success && res.data) setProducts(res.data as ProductListItem[])
-                  })
-                }}
+                onSuccess={fetchProducts}
               />
             )}
           </div>

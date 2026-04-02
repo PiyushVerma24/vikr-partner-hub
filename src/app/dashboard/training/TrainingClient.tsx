@@ -1,13 +1,13 @@
-"use client" // Trigger reload
+"use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from "@/components/ui/dialog"
 import { PlayCircle, FileText, Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { getTrainingModules } from "@/app/dashboard/actions/content"
-import { checkIsAdminBoolean } from "@/app/dashboard/actions/admin"
+import { createClient } from "@/utils/supabase/client"
+import { useDashboard } from "@/contexts/DashboardContext"
 import { EditTrainingModal, EditableTraining } from "@/components/EditTrainingModal"
 import { DeleteTrainingModal } from "@/components/DeleteTrainingModal"
 
@@ -23,13 +23,25 @@ type TrainingModule = {
   market_segment: string | null
 }
 
-type Props = { initialModules: TrainingModule[]; isAdmin: boolean }
-export function TrainingClient({ initialModules, isAdmin: initialIsAdmin }: Props) {
-  const [modules, setModules] = useState<TrainingModule[]>(initialModules)
-  const [isLoading, setIsLoading] = useState(false)
+export function TrainingClient() {
+  const { isAdmin } = useDashboard()
+  const [modules, setModules] = useState<TrainingModule[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isAdmin, setIsAdmin] = useState(initialIsAdmin)
   const [searchQuery, setSearchQuery] = useState("")
+
+  const fetchModules = async () => {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('training_hub_videos')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (error) setError(error.message)
+    else setModules((data ?? []) as TrainingModule[])
+    setIsLoading(false)
+  }
+
+  useEffect(() => { fetchModules() }, [])
 
   // Hardcoded tabs for the training hub
   const TABS = ["Sales", "Industries", "Onboarding"]
@@ -52,19 +64,11 @@ export function TrainingClient({ initialModules, isAdmin: initialIsAdmin }: Prop
           <div className="pt-1 flex items-center gap-2">
             <EditTrainingModal
               videos={modules as EditableTraining[]}
-              onSuccess={() => {
-                getTrainingModules().then(res => {
-                  if (res.success && res.data) setModules(res.data as TrainingModule[])
-                })
-              }}
+              onSuccess={fetchModules}
             />
             <DeleteTrainingModal
               videos={modules as EditableTraining[]}
-              onSuccess={() => {
-                getTrainingModules().then(res => {
-                  if (res.success && res.data) setModules(res.data as TrainingModule[])
-                })
-              }}
+              onSuccess={fetchModules}
             />
           </div>
         )}

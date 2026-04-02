@@ -1,8 +1,9 @@
-"use client" // Trigger reload
+"use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FileText, Search, Database } from "lucide-react"
-import { getAllDocuments, getSecureDocumentUrl } from "@/app/dashboard/actions/document"
+import { getSecureDocumentUrl } from "@/app/dashboard/actions/document"
+import { createClient } from "@/utils/supabase/client"
 import { ShareDocumentButton } from "@/components/ShareDocumentButton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -14,16 +15,21 @@ type Document = {
     products?: { name: string; sku: string } | null
 }
 
-type DocRow = {
-    id: string
-    title: string
-    category: string
-    products?: { name: string; sku: string } | null
-}
-type Props = { initialDocuments: DocRow[] }
-export function DocumentsClient({ initialDocuments }: Props) {
-    const [documents, setDocuments] = useState<Document[]>(initialDocuments)
-    const [isLoading, setIsLoading] = useState(false)
+export function DocumentsClient() {
+    const [documents, setDocuments] = useState<Document[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        const supabase = createClient()
+        supabase
+            .from('documents')
+            .select('id, title, category, products(name, sku)')
+            .order('created_at', { ascending: false })
+            .then(({ data }) => {
+                if (data) setDocuments(data as unknown as Document[])
+                setIsLoading(false)
+            })
+    }, [])
     const [searchQuery, setSearchQuery] = useState("")
     const [openingDocId, setOpeningDocId] = useState<string | null>(null)
     const [viewingDoc, setViewingDoc] = useState<{ doc: Document, url: string, isImage: boolean } | null>(null)
