@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PwaRegister } from "@/components/pwa-register";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -14,12 +15,19 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "VIKR Partner Hub",
   description: "Your central platform for product information, training, announcements and partner support.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "VIKR Hub",
+  },
+  manifest: "/manifest.webmanifest",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: "#6abf30",
 };
 
 export default function RootLayout({
@@ -30,6 +38,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -48,6 +58,7 @@ export default function RootLayout({
         <ThemeProvider>
           {children}
         </ThemeProvider>
+        <PwaRegister />
       </body>
     </html>
   );

@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* iOS safe-area utilities */
+@utility pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
 
 :root {
   /* Common variables */
@@ -59,10 +64,29 @@
   --font-syne: var(--font-poppins);
 }
 
+html {
+  /* Respect iOS safe areas (notch, home indicator) */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
 body {
   background: var(--bg-main);
   color: var(--text-main);
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  /* Prevent elastic overscroll on iOS while keeping scroll momentum */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove tap highlight on interactive elements */
+a, button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* iOS-style momentum scrolling on scrollable containers */
+.overflow-y-auto, .overflow-auto {
+  -webkit-overflow-scrolling: touch;
 }
 
 /* For dark mode logo in light theme: inverts white to black, rotates green back to green */

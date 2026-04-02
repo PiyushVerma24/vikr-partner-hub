@@ -3,22 +3,32 @@ import type { MetadataRoute } from 'next'
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'VIKR Partner Hub',
-    short_name: 'VIKR',
-    description: 'Secure Partner Hub and Document Repository for VIKR Regional Partners',
-    start_url: '/',
+    short_name: 'VIKR Hub',
+    description: 'Secure Partner Hub — product catalog, training, documents and support for VIKR Bioscience regional partners.',
+    start_url: '/dashboard',
+    scope: '/',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#000000',
+    orientation: 'portrait',
+    background_color: '#0a2004',
+    theme_color: '#6abf30',
+    categories: ['business', 'productivity'],
     icons: [
       {
-        src: '/globe.svg',
+        src: '/icon-192.png',
         sizes: '192x192',
-        type: 'image/svg+xml',
+        type: 'image/png',
+        purpose: 'maskable',
       },
       {
-        src: '/globe.svg',
+        src: '/icon-512.png',
         sizes: '512x512',
-        type: 'image/svg+xml',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
       },
     ],
   }
