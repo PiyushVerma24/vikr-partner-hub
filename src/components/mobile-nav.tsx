@@ -75,7 +75,7 @@ export function MobileNav({ navItems, logo, territory }: MobileNavProps) {
         )}
 
         {/* Nav Items */}
-        <div className="py-2">
+        <div className="py-2 flex-1">
           {navItems.map((item) => {
             const active = isActive(item.href)
             return (
@@ -94,6 +94,27 @@ export function MobileNav({ navItems, logo, territory }: MobileNavProps) {
               </Link>
             )
           })}
+        </div>
+
+        {/* About App */}
+        <div className="px-4 py-3 border-t border-border-subtle/50">
+          <div className="text-[9px] font-bold uppercase tracking-[0.1em] text-text-meta mb-0.5">About App</div>
+          <div className="text-[10px] font-semibold text-text-muted">
+            v{process.env.NEXT_PUBLIC_APP_VERSION}
+          </div>
+          <div className="text-[9px] text-text-meta leading-tight">
+            {process.env.NEXT_PUBLIC_BUILD_TIME
+              ? new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString('en-IN', {
+                  timeZone: 'Asia/Kolkata',
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                }) + ' IST'
+              : '—'}
+          </div>
         </div>
       </nav>
 
