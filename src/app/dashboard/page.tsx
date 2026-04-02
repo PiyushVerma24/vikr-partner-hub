@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { Package, FileText, Video, Bell, Link2 } from "lucide-react"
 import { createClient } from "@/utils/supabase/server"
 
@@ -44,30 +45,30 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md transition-colors hover:border-brand-accent">
-          <Package className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
-          <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Products</div>
-          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{productCount}</div>
-          <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">In product catalog</div>
-        </div>
-        <div className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md transition-colors hover:border-brand-accent">
-          <Video className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
-          <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Training Modules</div>
-          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{trainingCount}</div>
-          <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">Available to you</div>
-        </div>
-        <div className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md transition-colors hover:border-brand-accent">
-          <FileText className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
-          <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Documents</div>
-          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{documentCount}</div>
-          <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">TDS &amp; MSDS</div>
-        </div>
-        <div className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md transition-colors hover:border-brand-accent">
-          <Bell className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
-          <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Announcements</div>
-          <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{announcements.length}</div>
-          <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">Latest updates</div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Link href="/dashboard/products" className="block rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
+          <Package className="mb-3 h-5 w-5 text-text-main" />
+          <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Products</div>
+          <div className="mt-1 text-[26px] font-extrabold leading-none text-text-main">{productCount}</div>
+          <div className="mt-1 text-[11px] font-semibold text-brand-accent">In product catalog</div>
+        </Link>
+        <Link href="/dashboard/training" className="block rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
+          <Video className="mb-3 h-5 w-5 text-text-main" />
+          <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Training Modules</div>
+          <div className="mt-1 text-[26px] font-extrabold leading-none text-text-main">{trainingCount}</div>
+          <div className="mt-1 text-[11px] font-semibold text-brand-accent">Available to you</div>
+        </Link>
+        <Link href="/dashboard/documents" className="block rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
+          <FileText className="mb-3 h-5 w-5 text-text-main" />
+          <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Documents</div>
+          <div className="mt-1 text-[26px] font-extrabold leading-none text-text-main">{documentCount}</div>
+          <div className="mt-1 text-[11px] font-semibold text-brand-accent">TDS &amp; MSDS</div>
+        </Link>
+        <div className="rounded-xl border border-border-subtle bg-bg-card p-5 shadow-md transition-colors hover:border-brand-accent">
+          <Bell className="mb-3 h-5 w-5 text-text-main" />
+          <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">Announcements</div>
+          <div className="mt-1 text-[26px] font-extrabold leading-none text-text-main">{announcements.length}</div>
+          <div className="mt-1 text-[11px] font-semibold text-brand-accent">Latest updates</div>
         </div>
       </div>
 
