@@ -8,7 +8,7 @@ export default async function ProductsPage() {
   const [productsResult, isAdmin] = await Promise.all([
     supabase
       .from('products')
-      .select(`*, documents(*), product_media(*)`)
+      .select(`id, sku, name, description, category, ph_level, usp, features_benefits, applications, ingredients, directions_to_use, product_media(id, media_url, type)`)
       .eq('is_active', true)
       .order('name', { ascending: true }),
     checkIsAdminBoolean(),

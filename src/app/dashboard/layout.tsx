@@ -3,16 +3,7 @@ import { redirect } from "next/navigation"
 import { Users, FileText, Package, LayoutDashboard, Video, LifeBuoy, Database, Key } from "lucide-react"
 import { NavItem } from "@/components/nav-item"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Poppins } from "next/font/google"
-import { DashboardFontActivator } from "@/components/dashboard-font-activator"
 import { MobileNav } from "@/components/mobile-nav"
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  style: ["normal", "italic"]
-})
 export default async function DashboardLayout({
   children,
 }: {
@@ -49,8 +40,7 @@ export default async function DashboardLayout({
   ]
 
   return (
-    <div className={`dashboard-scope flex flex-col md:flex-row min-h-screen bg-bg-main text-text-main ${poppins.variable} ${poppins.className}`}>
-      <DashboardFontActivator />
+    <div className="dashboard-scope flex flex-col md:flex-row min-h-screen bg-bg-main text-text-main">
       <MobileNav navItems={navItems} logo="/vikr-logo-new.svg" territory={profile?.territory_code} />
       {/* Sidebar */}
       <aside className="w-[252px] border-r bg-bg-card border-border-subtle hidden md:flex flex-col shrink-0">
