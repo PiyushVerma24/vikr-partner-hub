@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server"
+import { getCachedProfile } from "@/utils/supabase/cached-queries"
 import { redirect } from "next/navigation"
 import { Users, FileText, Package, LayoutDashboard, Video, LifeBuoy, Database, Key } from "lucide-react"
 import { NavItem } from "@/components/nav-item"
@@ -19,12 +20,8 @@ export default async function DashboardLayout({
     return redirect("/login")
   }
 
-  // Fetch profile to get territory
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("territory_code, is_admin")
-    .eq("id", user.id)
-    .single()
+  // Use cached profile — avoids a fresh DB round trip on every layout render
+  const profile = await getCachedProfile(user.id)
 
   const navItems = [
     { href: "/dashboard", icon: <LayoutDashboard className="w-[15px] h-[15px]" />, label: "Dashboard" },

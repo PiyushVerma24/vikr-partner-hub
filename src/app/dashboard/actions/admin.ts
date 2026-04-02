@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { Database } from '@/types/supabase'
+import { getCachedProfile } from '@/utils/supabase/cached-queries'
 
 function createAdminClient() {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -54,13 +55,8 @@ export async function checkIsAdminBoolean() {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) return false
 
-    const supabaseAdmin = createAdminClient()
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single()
-
+    // Use cached profile — avoids a fresh admin DB round trip on every page navigation
+    const profile = await getCachedProfile(user.id)
     return profile?.is_admin === true
   } catch (e) {
     return false
