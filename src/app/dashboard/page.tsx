@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Package, FileText, Video, Bell, Link2 } from "lucide-react"
+import Link from "next/link"
 import { createClient } from "@/utils/supabase/client"
 
 type Announcement = {
@@ -40,17 +41,26 @@ export default function DashboardPage() {
 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: Package, label: "Products", value: productCount, sub: "In product catalog" },
-          { icon: Video, label: "Training Modules", value: trainingCount, sub: "Available to you" },
-          { icon: FileText, label: "Documents", value: documentCount, sub: "TDS & MSDS" },
-          { icon: Bell, label: "Announcements", value: announcements.length, sub: "Latest updates" },
-        ].map(({ icon: Icon, label, value, sub }) => (
-          <div key={label} className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md hover:border-brand-accent transition-colors">
-            <Icon className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
-            <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">{label}</div>
-            <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{value}</div>
-            <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">{sub}</div>
-          </div>
+          { icon: Package, label: "Products", value: productCount, sub: "In product catalog", href: "/dashboard/products" },
+          { icon: Video, label: "Training Modules", value: trainingCount, sub: "Available to you", href: "/dashboard/training" },
+          { icon: FileText, label: "Documents", value: documentCount, sub: "TDS & MSDS", href: "/dashboard/documents" },
+          { icon: Bell, label: "Announcements", value: announcements.length, sub: "Latest updates", href: null },
+        ].map(({ icon: Icon, label, value, sub, href }) => (
+          href ? (
+            <Link key={label} href={href} className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md hover:border-brand-accent transition-colors cursor-pointer block">
+              <Icon className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
+              <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">{label}</div>
+              <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{value}</div>
+              <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">{sub}</div>
+            </Link>
+          ) : (
+            <div key={label} className="rounded-lg sm:rounded-xl border border-border-subtle bg-bg-card p-4 sm:p-5 shadow-md hover:border-brand-accent transition-colors">
+              <Icon className="mb-2 sm:mb-3 h-4 sm:h-5 w-4 sm:w-5 text-text-main" />
+              <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.06em] text-text-muted">{label}</div>
+              <div className="mt-1 text-xl sm:text-[26px] font-extrabold leading-none text-text-main">{value}</div>
+              <div className="mt-1 text-[10px] sm:text-[11px] font-semibold text-brand-accent">{sub}</div>
+            </div>
+          )
         ))}
       </div>
 
