@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getPartners, updatePartnerTerritory, createPartner, resetPartnerPassword, deletePartner } from "../../actions/admin"
+import { AdminUsersMobileCards } from "./AdminUsersMobileCards"
 import {
   Table,
   TableBody,
@@ -173,7 +174,20 @@ export default function AdminUsersPage() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
+      {/* Mobile card list — hidden on desktop */}
+      <div className="block md:hidden">
+        <AdminUsersMobileCards
+          users={users}
+          isLoading={isLoading}
+          error={error}
+          onEdit={openEditModal}
+          onResetPassword={(user) => { setResetUser(user); setNewPassword("") }}
+          onDelete={setDeletingUser}
+        />
+      </div>
+
+      {/* Desktop table — hidden on mobile */}
+      <div className="hidden md:block rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
         <Table>
           <TableHeader className="bg-bg-hover">
             <TableRow>

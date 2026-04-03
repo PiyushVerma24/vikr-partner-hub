@@ -89,6 +89,25 @@ a, button, [role="button"] {
   -webkit-overflow-scrolling: touch;
 }
 
+/* ── CSS device-detection redundancy (complements width breakpoints) ──────── */
+/* Coarse pointer = finger/stylus. Fires on phones AND touch-screen laptops    */
+/* regardless of screen width, catching edge cases like iPads in landscape.    */
+@media (pointer: coarse) {
+  /* Give horizontal scroll containers native momentum on touch */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Hover: none = device cannot hover (touch screens).                          */
+/* Prevents hover background states getting "stuck" after a tap on iOS/Android */
+@media (hover: none) and (pointer: coarse) {
+  button:hover,
+  a:hover {
+    background-color: transparent;
+  }
+}
+
 /* For dark mode logo in light theme: inverts white to black, rotates green back to green */
 .light-logo-invert {
   filter: invert(1) hue-rotate(180deg) brightness(1.2);

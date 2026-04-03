@@ -26,6 +26,7 @@ import { Calendar, ExternalLink, Video, FileText, X, CheckCircle2 } from "lucide
 import { getMyMeetings, getAllUsers, scheduleMeeting } from "@/app/dashboard/actions/meetings"
 import { createClient } from "@/utils/supabase/client"
 import { MeetingsCalendar } from "@/components/MeetingsCalendar"
+import { MeetingsMobileAgenda } from "@/components/MeetingsMobileAgenda"
 
 type Meeting = {
   id: string
@@ -185,13 +186,21 @@ export default function MeetingsPage() {
         </Button>
       </div>
 
-      {/* Meetings Calendar */}
-      <div className="space-y-3">
+      {/* Desktop: monthly grid calendar — hidden on mobile */}
+      <div className="hidden md:block space-y-3">
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-widest text-text-meta">Calendar</h3>
           <p className="text-xs text-text-meta mt-0.5">Click a highlighted day to see meeting details.</p>
         </div>
         <MeetingsCalendar meetings={meetings} />
+      </div>
+
+      {/* Mobile: agenda list view — hidden on desktop */}
+      <div className="block md:hidden space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-text-meta">Your Meetings</h3>
+        </div>
+        <MeetingsMobileAgenda meetings={meetings} />
       </div>
 
       {/* Meetings table */}
