@@ -36,6 +36,7 @@ export function ProductsPage() {
       .select(
         "id, sku, name, description, category, ph_level, usp, features_benefits, applications, ingredients, directions_to_use, product_media(id, media_url, type)"
       )
+      .eq("is_active", true)
       .order("name")
     if (data) setProducts(data as ProductListItem[])
   }
@@ -170,10 +171,10 @@ export function ProductsPage() {
             onInteractOutside={(e) => { if (viewingDoc) e.preventDefault() }}
             onEscapeKeyDown={(e) => { if (viewingDoc) { e.preventDefault(); setViewingDoc(null) } }}
           >
-            <div className="flex flex-col lg:flex-row max-h-[calc(100vh-100px)] sm:max-h-[85vh]">
+            <div className="flex flex-col lg:flex-row max-h-[calc(100vh-100px)] sm:max-h-[85vh] overflow-y-auto lg:overflow-hidden">
               {/* Left: Image + Varieties */}
               {getVarietiesForProduct(dialogProduct.name).length > 0 ? (
-                <div className="w-full lg:w-[45%] bg-bg-hover flex flex-col p-4 sm:p-8 shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle overflow-y-auto">
+                <div className="w-full lg:w-[45%] bg-bg-hover flex flex-col p-4 sm:p-8 shrink-0 border-b lg:border-b-0 lg:border-r border-border-subtle lg:overflow-y-auto">
                   <button
                     onClick={() =>
                       dialogProduct.product_media?.[0] &&
@@ -193,7 +194,7 @@ export function ProductsPage() {
                   </button>
                   <div className="w-full mt-4 sm:mt-6 shrink-0">
                     <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-text-muted mb-3 sm:mb-4 border-b border-border-subtle pb-2">
-                      Varieties
+                      Fragrances
                     </h4>
                     <div className="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
                       {getVarietiesForProduct(dialogProduct.name).map((variant) => (
@@ -249,7 +250,7 @@ export function ProductsPage() {
               )}
 
               {/* Right: Scrollable detail content */}
-              <div className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto w-full">
+              <div className="flex-1 p-4 sm:p-6 lg:p-10 lg:overflow-y-auto w-full">
                 <DialogHeader className="mb-6 sm:mb-8 text-left space-y-2">
                   {dialogProduct.category && (
                     <span className="text-xs font-bold tracking-widest uppercase text-primary block">

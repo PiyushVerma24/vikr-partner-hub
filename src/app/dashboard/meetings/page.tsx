@@ -187,7 +187,7 @@ export default function MeetingsPage() {
       </div>
 
       {/* Desktop: monthly grid calendar — hidden on mobile */}
-      <div className="hidden md:block space-y-3">
+      <div className="hidden md:flex flex-col space-y-3">
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-widest text-text-meta">Calendar</h3>
           <p className="text-xs text-text-meta mt-0.5">Click a highlighted day to see meeting details.</p>
@@ -196,7 +196,7 @@ export default function MeetingsPage() {
       </div>
 
       {/* Mobile: agenda list view — hidden on desktop */}
-      <div className="block md:hidden space-y-3">
+      <div className="md:hidden space-y-3">
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-widest text-text-meta">Your Meetings</h3>
         </div>
