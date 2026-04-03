@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { Package, FileText, X, Loader2 } from "lucide-react"
 import { getSecureDocumentUrl } from "@/app/dashboard/actions/document"
-import { getProductById } from "@/app/dashboard/actions/product-details"
 import { ShareDocumentButton } from "@/components/ShareDocumentButton"
 import Image from "next/image"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -49,10 +48,18 @@ export function ProductsPage() {
     setProductDetail(null)
     setDetailLoading(true)
     try {
-      const res = await getProductById(product.id)
-      if (res.success && res.data) setProductDetail(res.data as ProductDetail)
+      // Fetch only documents — all other fields are already in the product list item
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("products")
+        .select("documents(*)")
+        .eq("id", product.id)
+        .single()
+      if (data) {
+        setProductDetail({ ...product, documents: (data as any).documents ?? [] } as ProductDetail)
+      }
     } catch (err) {
-      console.error("Error fetching product detail:", err)
+      console.error("Error fetching product documents:", err)
     } finally {
       setDetailLoading(false)
     }
@@ -267,12 +274,8 @@ export function ProductsPage() {
                   </div>
                 </DialogHeader>
 
-                {detailLoading ? (
-                  <div className="flex items-center justify-center py-16">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
-                ) : (
-                  <div className="space-y-8 text-sm text-text-main">
+                {/* Text content — shown immediately from already-loaded list data */}
+                <div className="space-y-8 text-sm text-text-main">
                     {dialogProduct.description && (
                       <div>
                         <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2 border-b border-border-subtle pb-2">
@@ -313,7 +316,14 @@ export function ProductsPage() {
                         <p className="leading-relaxed whitespace-pre-wrap">{dialogProduct.ingredients}</p>
                       </div>
                     )}
-                    {productDetail?.documents && productDetail.documents.length > 0 && (
+
+                    {/* Documents — fetched separately, show spinner only here */}
+                    {detailLoading ? (
+                      <div className="flex items-center gap-2 text-xs text-text-meta py-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Loading documents…
+                      </div>
+                    ) : productDetail?.documents && productDetail.documents.length > 0 ? (
                       <div>
                         <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-4 border-b border-border-subtle pb-2">
                           Available Documents
@@ -350,9 +360,8 @@ export function ProductsPage() {
                           ))}
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </div>
-                )}
               </div>
             </div>
           </DialogContent>
