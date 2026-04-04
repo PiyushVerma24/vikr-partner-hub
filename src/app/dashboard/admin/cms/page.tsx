@@ -435,8 +435,13 @@ export default function AdminCMSPage() {
                     <SelectContent>
                       <SelectItem value="TDS">TDS (Technical Data)</SelectItem>
                       <SelectItem value="MSDS">MSDS (Safety Data)</SelectItem>
-                      <SelectItem value="CERTIFICATE">Certificate</SelectItem>
-                      <SelectItem value="MANUAL">Manual</SelectItem>
+                      <SelectItem value="Coshh Sheet">Coshh Sheet</SelectItem>
+                      <SelectItem value="GreenPro Certificate">GreenPro Certificate</SelectItem>
+                      <SelectItem value="ISO 90012015 Certificate">ISO 90012015 Certificate</SelectItem>
+                      <SelectItem value="Product Label">Product Label</SelectItem>
+                      <SelectItem value="Product Test Report">Product Test Report</SelectItem>
+                      <SelectItem value="CERTIFICATE">Certificate (Generic)</SelectItem>
+                      <SelectItem value="MANUAL">Manual (Generic)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

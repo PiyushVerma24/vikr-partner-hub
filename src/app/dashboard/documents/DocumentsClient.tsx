@@ -7,11 +7,19 @@ import { createClient } from "@/utils/supabase/client"
 import { ShareDocumentButton } from "@/components/ShareDocumentButton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 type Document = {
     id: string
     title: string
     category: string
+    file_url?: string
     products?: { name: string; sku: string } | null
 }
 
@@ -23,7 +31,7 @@ export function DocumentsClient() {
         const supabase = createClient()
         supabase
             .from('documents')
-            .select('id, title, category, products(name, sku)')
+            .select('id, title, category, file_url, products(name, sku)')
             .order('created_at', { ascending: false })
             .then(({ data }) => {
                 if (data) setDocuments(data as unknown as Document[])
@@ -31,14 +39,31 @@ export function DocumentsClient() {
             })
     }, [])
     const [searchQuery, setSearchQuery] = useState("")
+    const [selectedCategory, setSelectedCategory] = useState("All")
     const [openingDocId, setOpeningDocId] = useState<string | null>(null)
     const [viewingDoc, setViewingDoc] = useState<{ doc: Document, url: string, isImage: boolean } | null>(null)
 
-    const filteredDocs = documents.filter(doc =>
-        doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (doc.products?.name && doc.products.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        doc.category.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const uniqueCategories = Array.from(new Set(documents.map(d => d.category))).sort()
+
+    const filteredDocs = documents.filter(doc => {
+        const q = searchQuery.toLowerCase()
+        const titleMatch = doc.title ? doc.title.toLowerCase().includes(q) : false
+        const catMatch = doc.category ? doc.category.toLowerCase().includes(q) : false
+        
+        let prodMatch = false
+        if (doc.products) {
+            const prods = Array.isArray(doc.products) ? doc.products : [doc.products]
+            prodMatch = prods.some((p: any) => 
+                (p.name && p.name.toLowerCase().includes(q)) || 
+                (p.sku && p.sku.toLowerCase().includes(q))
+            )
+        }
+            
+        const matchesSearch = titleMatch || catMatch || prodMatch
+        const matchesCategory = selectedCategory === "All" || doc.category === selectedCategory
+        
+        return matchesSearch && matchesCategory
+    })
 
     const handleViewDocument = async (doc: Document) => {
         setOpeningDocId(doc.id)
@@ -71,8 +96,8 @@ export function DocumentsClient() {
                 <p className="text-text-muted">Search and retrieve Technical Data Sheets (TDS), MSDS, and specific product literature approved for your region.</p>
             </div>
 
-            <div className="flex items-center gap-4 bg-bg-card border border-border-subtle p-4 rounded-2xl">
-                <div className="relative flex-1">
+            <div className="flex flex-col md:flex-row items-center gap-4 bg-bg-card border border-border-subtle p-4 rounded-2xl">
+                <div className="relative flex-1 w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                     <Input
                         placeholder="Search documents by title, product name, or category..."
@@ -81,6 +106,19 @@ export function DocumentsClient() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
+                {uniqueCategories.length > 0 && (
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <SelectTrigger className="w-full md:w-[220px] h-12 border-border-subtle text-text-main focus:ring-[#6abf30] focus:border-brand-accent" style={{ backgroundColor: '#1A2411' }}>
+                            <SelectValue placeholder="Category" />
+                        </SelectTrigger>
+                        <SelectContent className="border-border-subtle text-text-main" style={{ backgroundColor: '#1A2411' }}>
+                            <SelectItem value="All">All Categories</SelectItem>
+                            {uniqueCategories.map(cat => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
             </div>
 
             <div className="bg-bg-card border border-border-subtle rounded-2xl overflow-hidden shadow-lg">
@@ -183,7 +221,14 @@ export function DocumentsClient() {
                                 />
                             ) : (
                                 <iframe
-                                    src={viewingDoc.url}
+                                    src={
+                                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.docx') || 
+                                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.doc') || 
+                                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.xlsx') || 
+                                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.pptx')
+                                          ? `https://docs.google.com/viewer?url=${encodeURIComponent(viewingDoc.url)}&embedded=true`
+                                          : viewingDoc.url
+                                    }
                                     style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
                                     title={viewingDoc.doc.title}
                                 />

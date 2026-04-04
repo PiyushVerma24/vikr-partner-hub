@@ -34,7 +34,7 @@ export function ProductsPage() {
     const { data } = await supabase
       .from("products")
       .select(
-        "id, sku, name, description, category, ph_level, usp, features_benefits, applications, ingredients, directions_to_use, product_media(id, media_url, type)"
+        "id, sku, name, description, category, ph_level, usp, features_benefits, applications, ingredients, directions_to_use, product_media(id, media_url, type), documents(*)"
       )
       .eq("is_active", true)
       .order("name")
@@ -441,7 +441,14 @@ export function ProductsPage() {
                     />
                   ) : (
                     <iframe
-                      src={viewingDoc.url}
+                      src={
+                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.docx') || 
+                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.doc') || 
+                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.xlsx') || 
+                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.pptx')
+                          ? `https://docs.google.com/viewer?url=${encodeURIComponent(viewingDoc.url)}&embedded=true`
+                          : viewingDoc.url
+                      }
                       style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
                       title={viewingDoc.doc.title}
                     />

@@ -30,10 +30,8 @@ export async function POST(request: Request) {
     }
 
     // 3. Upload File to Storage
-    const folderName = productId
-
     const fileExt = file.name.split('.').pop()
-    const fileName = `${folderName}/${Date.now()}.${fileExt}`
+    const fileName = `Product_Documents/${category}/${productId}_${Date.now()}.${fileExt}`
 
     const { error: uploadError } = await supabase.storage
       .from('secure_documents')

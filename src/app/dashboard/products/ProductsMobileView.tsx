@@ -2,10 +2,11 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Package, Search, SlidersHorizontal, X, ChevronRight } from "lucide-react"
+import { Package, Search, SlidersHorizontal, X, ChevronRight, FileText, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CATEGORIES, type ViewProps } from "./types"
+import { Badge } from "@/components/ui/badge"
+import { CATEGORIES, getProductDocumentBadges, type ViewProps } from "./types"
 
 export function ProductsMobileView({
   filteredProducts,
@@ -113,6 +114,21 @@ export function ProductsMobileView({
                     {product.usp}
                   </p>
                 )}
+                
+                {/* Document Badges */}
+                {(() => {
+                  const badges = getProductDocumentBadges(product);
+                  if (badges.length === 0) return null;
+                  return (
+                    <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-border-subtle">
+                      {badges.map(badge => (
+                          <Badge key={badge} variant="outline" className="text-[9px] font-mono tracking-tight px-1.5 py-0.5 bg-bg-main border-border-subtle text-text-muted">
+                            {badge}
+                          </Badge>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               <ChevronRight className="w-4 h-4 text-text-meta shrink-0" />

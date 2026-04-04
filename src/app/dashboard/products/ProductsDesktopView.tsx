@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Package, Search, Filter } from "lucide-react"
+import { Package, Search, Filter, FileText, AlertTriangle, FileCheck } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { EditProductModal, EditableProduct } from "@/components/EditProductModal"
 import { DeleteProductModal } from "@/components/DeleteProductModal"
-import { CATEGORIES, type ViewProps } from "./types"
+import { CATEGORIES, getProductDocumentBadges, type ViewProps } from "./types"
 
 export function ProductsDesktopView({
   filteredProducts,
@@ -87,44 +87,60 @@ export function ProductsDesktopView({
 
       {/* Product Grid */}
       <main className="w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
           {filteredProducts.map((product) => (
             <Card
               key={product.id}
               onClick={() => onOpenProduct(product)}
-              className="w-full overflow-hidden transition-all hover:shadow-md cursor-pointer border-border-subtle flex flex-row min-h-[110px] sm:min-h-[160px]"
+              className="w-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-brand-accent/50 cursor-pointer border-border-subtle flex flex-row lg:flex-col min-h-[110px] sm:min-h-[160px] lg:min-h-[380px] group"
             >
-              <div className="relative w-[90px] sm:w-[38%] bg-bg-hover flex items-center justify-center p-2 sm:p-5 border-r border-border-subtle transition-colors shrink-0">
+              <div className="relative w-[90px] sm:w-[38%] lg:w-full lg:h-[240px] bg-bg-hover flex items-center justify-center p-2 sm:p-5 lg:p-8 border-r lg:border-r-0 lg:border-b border-border-subtle transition-colors shrink-0 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 opacity-0 lg:group-hover:opacity-100 transition-opacity z-10 pointer-events-none" />
                 {product.product_media && product.product_media.length > 0 ? (
                   <Image
                     src={product.product_media[0].media_url}
                     alt={product.name}
                     fill
-                    sizes="(max-width: 640px) 90px, 38vw"
-                    className="object-contain p-2 sm:p-4"
+                    sizes="(max-width: 640px) 90px, (max-width: 1024px) 38vw, 33vw"
+                    className="object-contain p-2 sm:p-4 lg:p-6 transition-transform duration-500 lg:group-hover:scale-105"
                   />
                 ) : (
-                  <Package className="w-8 sm:w-12 h-8 sm:h-12 text-text-muted" strokeWidth={1} />
+                  <Package className="w-8 sm:w-12 lg:w-20 h-8 sm:h-12 lg:h-20 text-text-muted transition-transform duration-500 lg:group-hover:scale-110" strokeWidth={1} />
                 )}
               </div>
-              <CardContent className="p-3 sm:p-5 flex flex-col justify-center flex-1 overflow-hidden min-w-0">
+              <CardContent className="p-3 sm:p-5 lg:p-6 flex flex-col justify-center lg:justify-start flex-1 overflow-hidden min-w-0 bg-bg-card relative">
                 {product.category && (
-                  <span className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-primary mb-1 block truncate">
+                  <span className="text-[9px] sm:text-[10px] lg:text-[11px] font-bold tracking-widest uppercase text-brand-accent mb-1 lg:mb-2 block truncate">
                     {product.category}
                   </span>
                 )}
-                <h3 className="font-bold text-sm sm:text-base lg:text-lg text-text-main leading-snug line-clamp-2">
+                <h3 className="font-bold text-sm sm:text-base lg:text-xl text-text-main leading-snug line-clamp-2 lg:group-hover:text-brand-accent transition-colors">
                   {product.name}
                 </h3>
                 {product.usp ? (
-                  <p className="text-[11px] sm:text-xs text-text-muted mt-1 sm:mt-2 line-clamp-2 leading-relaxed">
+                  <p className="text-[11px] sm:text-xs lg:text-sm text-text-muted mt-1 sm:mt-2 lg:mt-3 line-clamp-2 lg:line-clamp-3 leading-relaxed">
                     {product.usp}
                   </p>
                 ) : (
-                  <p className="text-[11px] sm:text-xs text-text-meta italic mt-1 sm:mt-2">
+                  <p className="text-[11px] sm:text-xs lg:text-sm text-text-meta italic mt-1 sm:mt-2 lg:mt-3">
                     No description available.
                   </p>
                 )}
+                
+                {/* Document Badges */}
+                {(() => {
+                  const badges = getProductDocumentBadges(product);
+                  if (badges.length === 0) return null;
+                  return (
+                    <div className="flex flex-wrap gap-1.5 lg:gap-2 mt-3 pt-3 lg:mt-auto lg:pt-4 border-t border-border-subtle items-center transition-colors lg:group-hover:border-brand-accent/20">
+                      {badges.map(badge => (
+                        <Badge key={badge} variant="outline" className="text-[9px] sm:text-[10px] lg:text-[11px] font-mono tracking-tight px-1.5 lg:px-2 py-0.5 lg:py-1 bg-bg-main border-border-subtle text-text-muted hover:text-text-main hover:border-text-muted transition-colors">
+                          {badge}
+                        </Badge>
+                      ))}
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           ))}

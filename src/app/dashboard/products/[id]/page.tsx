@@ -45,6 +45,7 @@ export default function ProductDetailPage() {
   const [error, setError] = useState<string | null>(null)
 
   const [activePdfUrl, setActivePdfUrl] = useState<string | null>(null)
+  const [activePdfFileUrl, setActivePdfFileUrl] = useState<string | null>(null)
   const [activePdfTitle, setActivePdfTitle] = useState<string | null>(null)
   const [isPdfLoading, setIsPdfLoading] = useState(false)
 
@@ -63,9 +64,10 @@ export default function ProductDetailPage() {
     if (productId) fetchProduct()
   }, [productId])
 
-  const loadPdfViewer = async (documentId: string, title: string) => {
+  const loadPdfViewer = async (documentId: string, title: string, file_url?: string) => {
     setIsPdfLoading(true)
     setActivePdfTitle(title)
+    setActivePdfFileUrl(file_url || null)
     
     // Get secure signed URL for iframe embedding (expires in 1 hour)
     const { success, url } = await getSecureDocumentUrl(documentId, 3600)
@@ -164,7 +166,7 @@ export default function ProductDetailPage() {
                     <div 
                       key={doc.id} 
                       className={`p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors cursor-pointer flex flex-col gap-2 ${activePdfTitle === doc.title ? 'bg-zinc-50 dark:bg-zinc-900/80 border-l-2 border-l-primary' : ''}`}
-                      onClick={() => loadPdfViewer(doc.id, doc.title)}
+                      onClick={() => loadPdfViewer(doc.id, doc.title, doc.file_url)}
                     >
                       <div className="flex justify-between items-start">
                         <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100 leading-tight pr-4">
@@ -186,7 +188,7 @@ export default function ProductDetailPage() {
                           onClick={(e) => {
                             e.stopPropagation();
                             // If they want to pop it out, get a fresh URL
-                            loadPdfViewer(doc.id, doc.title).then(() => {
+                            loadPdfViewer(doc.id, doc.title, doc.file_url).then(() => {
                                if (activePdfUrl) window.open(activePdfUrl, '_blank')
                             })
                           }}
@@ -270,7 +272,14 @@ export default function ProductDetailPage() {
                  </a>
                </div>
                <iframe 
-                 src={`${activePdfUrl}#view=FitH`} 
+                 src={
+                   activePdfFileUrl?.toLowerCase().endsWith('.docx') || 
+                   activePdfFileUrl?.toLowerCase().endsWith('.doc') || 
+                   activePdfFileUrl?.toLowerCase().endsWith('.xlsx') || 
+                   activePdfFileUrl?.toLowerCase().endsWith('.pptx')
+                     ? `https://docs.google.com/viewer?url=${encodeURIComponent(activePdfUrl || '')}&embedded=true`
+                     : `${activePdfUrl}#view=FitH`
+                 } 
                  className="w-full flex-1 border-0" 
                  title={activePdfTitle || "Document Viewer"}
                />
