@@ -17,7 +17,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 
 const REGIONS = ["GLOBAL", "UAE", "KSA", "North America", "Russia", "India"]
-const CATEGORIES = ["Hardware", "Software", "Services", "Accessories", "Cleaning", "Polishing", "Maintenance", "Restoration"]
 
 export default function AdminCMSPage() {
   // SKU Form State
@@ -45,7 +44,7 @@ export default function AdminCMSPage() {
 
   // Product Media State
   const [mediaProductId, setMediaProductId] = useState("")
-  const [mediaType, setMediaType] = useState("Before")
+  const [mediaType, setMediaType] = useState("IMAGE")
   const [mediaFile, setMediaFile] = useState<File | null>(null)
   const [isUploadingMedia, setIsUploadingMedia] = useState(false)
 
@@ -85,21 +84,28 @@ export default function AdminCMSPage() {
   }
 
   // Products Data
-  const [products, setProducts] = useState<{ id: string, name: string, sku: string }[]>([])
+  const [products, setProducts] = useState<{ id: string, name: string, sku: string, category?: string }[]>([])
+  const [dynamicCategories, setDynamicCategories] = useState<string[]>([])
+
+  const fetchProducts = async () => {
+    const res = await getProducts()
+    if (res.success && res.data) {
+      setProducts(res.data as any)
+      const cats = Array.from(new Set(res.data.map((p: any) => p.category).filter(Boolean))) as string[]
+      setDynamicCategories(cats.sort())
+    }
+  }
 
   useEffect(() => {
-    async function fetchProducts() {
-      const res = await getProducts()
-      if (res.success && res.data) {
-        setProducts(res.data)
-      }
-    }
     fetchProducts()
   }, [])
 
   const handleCreateSKU = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!skuId || !skuName || !skuCategory) return
+    if (!skuId || !skuName || !skuCategory) {
+      alert("Please fill in all required fields: SKU ID, Product Name, and Category.")
+      return
+    }
 
     setIsCreatingSku(true)
 
@@ -129,6 +135,7 @@ export default function AdminCMSPage() {
       setSkuApplications("")
       setSkuIngredients("")
       setSkuDirections("")
+      await fetchProducts()
     } else {
       alert(`Error creating SKU: ${result.error}`)
     }
@@ -350,18 +357,19 @@ export default function AdminCMSPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="skuCategory">Category</Label>
-                <Select value={skuCategory} onValueChange={setSkuCategory} required>
-                  <SelectTrigger id="skuCategory">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map(cat => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="skuCategory"
+                  list="category-suggestions"
+                  placeholder="Select or type a new category"
+                  value={skuCategory}
+                  onChange={(e) => setSkuCategory(e.target.value)}
+                  required
+                />
+                <datalist id="category-suggestions">
+                  {dynamicCategories.map(cat => (
+                    <option key={cat} value={cat} />
+                  ))}
+                </datalist>
               </div>
 
               <div className="space-y-2 pt-2 border-t border-border-subtle">
@@ -395,7 +403,7 @@ export default function AdminCMSPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" variant="outline" disabled={isCreatingSku}>
+              <Button type="submit" className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200" variant="outline" disabled={isCreatingSku}>
                 {isCreatingSku ? "Creating..." : "Create SKU"}
               </Button>
             </CardFooter>
@@ -493,7 +501,7 @@ export default function AdminCMSPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" variant="outline" disabled={isUploading}>
+              <Button type="submit" className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200" variant="outline" disabled={isUploading}>
                 {isUploading ? "Uploading..." : "Upload to Selected Regions"}
               </Button>
             </CardFooter>
@@ -530,10 +538,8 @@ export default function AdminCMSPage() {
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Packaging">Primary Packaging Image</SelectItem>
-                    <SelectItem value="Before">Before Image</SelectItem>
-                    <SelectItem value="After">After Image</SelectItem>
-                    <SelectItem value="Marketing">Marketing Material</SelectItem>
+                    <SelectItem value="IMAGE">Image</SelectItem>
+                    <SelectItem value="VIDEO">Video</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -550,7 +556,7 @@ export default function AdminCMSPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" variant="outline" disabled={isUploadingMedia}>
+              <Button type="submit" className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200" variant="outline" disabled={isUploadingMedia}>
                 {isUploadingMedia ? "Uploading..." : "Upload Media"}
               </Button>
             </CardFooter>
@@ -672,7 +678,7 @@ export default function AdminCMSPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" variant="outline" disabled={isCreatingTraining}>
+              <Button type="submit" className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200" variant="outline" disabled={isCreatingTraining}>
                 {isCreatingTraining ? "Creating..." : "Publish Training Module"}
               </Button>
             </CardFooter>
@@ -756,7 +762,7 @@ export default function AdminCMSPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" variant="outline" disabled={isCreatingAnn}>
+              <Button type="submit" className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-200" variant="outline" disabled={isCreatingAnn}>
                 {isCreatingAnn ? "Publishing..." : "Broadcast Announcement"}
               </Button>
             </CardFooter>

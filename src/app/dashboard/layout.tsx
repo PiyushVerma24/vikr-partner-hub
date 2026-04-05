@@ -42,8 +42,8 @@ function Sidebar() {
       <aside className="w-[252px] border-r bg-bg-card border-border-subtle hidden md:flex flex-col shrink-0">
         {/* Logo */}
         <div className="px-4 pt-5 pb-4 border-b border-border-subtle">
-          <img src="/vikr-logo-new.svg" alt="VIKR Bioscience" className="h-[38px] w-auto max-w-[180px] object-contain object-left" />
-          <div className="-mt-2 text-[9px] font-semibold uppercase tracking-[0.1em] text-text-muted">
+          <img src="/vikr-logo-new.svg" alt="VIKR Bioscience" className="h-[56px] w-auto max-w-[220px] object-contain object-left" />
+          <div className="-mt-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-text-muted">
             Partner Hub &middot; Vikr Bioscience Pvt. Ltd.
           </div>
         </div>

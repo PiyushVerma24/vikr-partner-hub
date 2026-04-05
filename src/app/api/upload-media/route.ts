@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 export async function POST(request: Request) {
     try {
@@ -26,25 +27,30 @@ export async function POST(request: Request) {
         const fileExt = file.name.split('.').pop()
         const fileName = `${productId}/${Date.now()}.${fileExt}`
 
+        const supabaseAdmin = createSupabaseClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        )
+
         // Use product_media bucket
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabaseAdmin.storage
             .from('Product_Images')
             .upload(fileName, file, { upsert: true })
 
         if (uploadError) throw new Error(`Storage upload failed: ${uploadError.message}`)
 
         // Get public URL
-        const { data: { publicUrl } } = supabase.storage
+        const { data: { publicUrl } } = supabaseAdmin.storage
             .from('Product_Images')
             .getPublicUrl(fileName)
 
         // 4. Create Database Record
-        const { error: dbError } = await supabase
+        const { error: dbError } = await supabaseAdmin
             .from('product_media')
             .insert({
                 product_id: productId,
                 media_url: publicUrl,
-                type: mediaType as 'Before' | 'After' | 'Marketing' | 'Packaging'
+                type: mediaType as 'IMAGE' | 'VIDEO'
             })
 
         if (dbError) throw new Error(`Database insert failed: ${dbError.message}`)

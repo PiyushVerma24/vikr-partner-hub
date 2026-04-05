@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Pencil } from "lucide-react"
-import { updateProduct } from "@/app/dashboard/actions/admin"
+import { Pencil, Trash2 } from "lucide-react"
+import { updateProduct, deleteProductMedia, deleteProductDocument } from "@/app/dashboard/actions/admin"
 
 export type EditableProduct = {
     id: string
@@ -20,6 +20,8 @@ export type EditableProduct = {
     applications: string | null
     ingredients: string | null
     directions_to_use: string | null
+    product_media?: { id: string, media_url: string, type: string }[]
+    documents?: { id: string, title: string, category: string, file_url: string }[]
 }
 
 const CATEGORIES = [
@@ -51,6 +53,9 @@ export function EditProductModal({ products, onSuccess }: { products: EditablePr
     const [ingredients, setIngredients] = useState("")
     const [directions, setDirections] = useState("")
 
+    const [activeMedia, setActiveMedia] = useState<{ id: string, media_url: string, type: string }[]>([])
+    const [activeDocuments, setActiveDocuments] = useState<{ id: string, title: string, category: string, file_url: string }[]>([])
+
     // When dropdown changes, populate states
     const handleProductSelect = (id: string) => {
         setSelectedProductId(id)
@@ -67,6 +72,30 @@ export function EditProductModal({ products, onSuccess }: { products: EditablePr
             setApplications(active.applications || "")
             setIngredients(active.ingredients || "")
             setDirections(active.directions_to_use || "")
+            setActiveMedia(active.product_media || [])
+            setActiveDocuments(active.documents || [])
+        }
+    }
+
+    const handleDeleteMedia = async (mediaId: string) => {
+        if (!confirm("Are you sure you want to remove this media?")) return;
+        const res = await deleteProductMedia(mediaId);
+        if (res.success) {
+            setActiveMedia(curr => curr.filter(m => m.id !== mediaId));
+            onSuccess();
+        } else {
+            alert("Failed to delete media: " + res.error);
+        }
+    }
+
+    const handleDeleteDoc = async (docId: string) => {
+        if (!confirm("Are you sure you want to remove this document?")) return;
+        const res = await deleteProductDocument(docId);
+        if (res.success) {
+            setActiveDocuments(curr => curr.filter(d => d.id !== docId));
+            onSuccess();
+        } else {
+            alert("Failed to delete document: " + res.error);
         }
     }
 
@@ -180,10 +209,45 @@ export function EditProductModal({ products, onSuccess }: { products: EditablePr
                                 </Select>
                             </div>
 
-                            <div className="space-y-2 pb-4 border-b border-border-subtle">
-                                <Label htmlFor="mediaFile">Update Primary Picture (Optional)</Label>
-                                <Input id="mediaFile" type="file" accept="image/*" className="cursor-pointer" onChange={e => setMediaFile(e.target.files?.[0] || null)} />
-                                <p className="text-xs text-text-muted mt-1">Uploading a new picture will add it to the product's image rotation as the new primary visual.</p>
+                            <div className="space-y-4 pt-4 border-t border-border-subtle">
+                                <h4 className="text-sm font-semibold text-text-main">Linked Media</h4>
+                                {activeMedia.length > 0 ? (
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                        {activeMedia.map(m => (
+                                            <div key={m.id} className="relative group rounded-md border border-border-subtle bg-white overflow-hidden aspect-square flex items-center justify-center">
+                                                <img src={m.media_url} alt={m.type} className="max-w-full max-h-full object-contain p-2" />
+                                                <button type="button" onClick={() => handleDeleteMedia(m.id)} className="absolute top-1 right-1 bg-red-500/90 hover:bg-red-600 text-white rounded p-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Trash2 className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : <p className="text-xs text-text-muted">No media linked to this product.</p>}
+
+                                <div className="space-y-2 mt-2">
+                                    <Label htmlFor="mediaFile">Upload New Picture (Optional)</Label>
+                                    <Input id="mediaFile" type="file" accept="image/*" className="cursor-pointer" onChange={e => setMediaFile(e.target.files?.[0] || null)} />
+                                    <p className="text-xs text-text-muted mt-1">Uploading a new picture will add it to the product's active image rotation.</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 pt-4 border-t border-border-subtle pb-4 border-b">
+                                <h4 className="text-sm font-semibold text-text-main">Linked Documents</h4>
+                                {activeDocuments.length > 0 ? (
+                                    <div className="space-y-2 flex flex-col">
+                                        {activeDocuments.map(d => (
+                                            <div key={d.id} className="flex justify-between items-center p-3 border border-border-subtle rounded-md bg-bg-hover">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-semibold text-text-main line-clamp-1">{d.title}</span>
+                                                    <span className="text-[10px] text-text-muted uppercase tracking-wider">{d.category}</span>
+                                                </div>
+                                                <Button type="button" variant="destructive" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleDeleteDoc(d.id)}>
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : <p className="text-xs text-text-muted">No documents linked to this product.</p>}
                             </div>
 
                             <div className="space-y-2 pt-2">

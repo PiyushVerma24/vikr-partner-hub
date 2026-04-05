@@ -228,7 +228,7 @@ export async function getProducts() {
     await requireAdmin(supabase)
     const { data, error } = await supabase
       .from('products')
-      .select('id, sku, name')
+      .select('id, sku, name, category')
       .order('name', { ascending: true })
     if (error) throw error
     return { success: true, data }
@@ -590,6 +590,34 @@ export async function createAnnouncement(formData: FormData) {
     return { success: true }
   } catch (error: unknown) {
     console.error('Error creating announcement:', error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}
+
+export async function deleteProductMedia(mediaId: string) {
+  const supabase = await createClient()
+  try {
+    await requireAdmin(supabase)
+    const supabaseAdmin = createAdminClient()
+    const { error } = await supabaseAdmin.from('product_media').delete().eq('id', mediaId)
+    if (error) throw error
+    revalidatePath('/dashboard/products')
+    return { success: true }
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}
+
+export async function deleteProductDocument(documentId: string) {
+  const supabase = await createClient()
+  try {
+    await requireAdmin(supabase)
+    const supabaseAdmin = createAdminClient()
+    const { error } = await supabaseAdmin.from('documents').delete().eq('id', documentId)
+    if (error) throw error
+    revalidatePath('/dashboard/products')
+    return { success: true }
+  } catch (error: unknown) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }

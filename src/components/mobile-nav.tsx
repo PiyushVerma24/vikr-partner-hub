@@ -33,7 +33,7 @@ export function MobileNav({ navItems, logo, territory }: MobileNavProps) {
         <img
           src={logo}
           alt="VIKR Bioscience"
-          className="h-6 w-auto object-contain"
+          className="h-10 w-auto max-w-[200px] object-contain"
         />
         <button
           onClick={() => setIsOpen(!isOpen)}

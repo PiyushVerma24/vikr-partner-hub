@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { FileText, Search, Database } from "lucide-react"
+import { FileText, Search, Database, Trash2 } from "lucide-react"
 import { getSecureDocumentUrl } from "@/app/dashboard/actions/document"
+import { deleteProductDocument } from "@/app/dashboard/actions/admin"
 import { createClient } from "@/utils/supabase/client"
+import { useDashboard } from "@/contexts/DashboardContext"
 import { ShareDocumentButton } from "@/components/ShareDocumentButton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -24,8 +26,20 @@ type Document = {
 }
 
 export function DocumentsClient() {
+    const { isAdmin } = useDashboard()
     const [documents, setDocuments] = useState<Document[]>([])
     const [isLoading, setIsLoading] = useState(true)
+
+    const handleDelete = async (docId: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (!confirm("Are you sure you want to permanently delete this document?")) return
+        const res = await deleteProductDocument(docId)
+        if (res.success) {
+            setDocuments(docs => docs.filter(d => d.id !== docId))
+        } else {
+            alert('Failed to delete document: ' + res.error)
+        }
+    }
 
     useEffect(() => {
         const supabase = createClient()
@@ -179,8 +193,17 @@ export function DocumentsClient() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="shrink-0 flex items-center justify-start sm:justify-end border-t border-border-subtle mt-4 pt-4 sm:border-0 sm:mt-0 sm:pt-0 w-full sm:w-auto">
+                                    <div className="shrink-0 flex items-center justify-start sm:justify-end border-t border-border-subtle mt-4 pt-4 sm:border-0 sm:mt-0 sm:pt-0 w-full sm:w-auto gap-2">
                                         <ShareDocumentButton documentId={doc.id} title={doc.title} />
+                                        {isAdmin && (
+                                            <button
+                                                onClick={(e) => handleDelete(doc.id, e)}
+                                                className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors h-[42px] w-[42px] flex items-center justify-center shrink-0 border border-red-500/20"
+                                                title="Delete Document"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             ))}

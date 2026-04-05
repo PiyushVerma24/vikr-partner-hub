@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 import { Database } from '@/types/supabase'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 export async function POST(request: Request) {
   try {
@@ -33,14 +34,19 @@ export async function POST(request: Request) {
     const fileExt = file.name.split('.').pop()
     const fileName = `Product_Documents/${category}/${productId}_${Date.now()}.${fileExt}`
 
-    const { error: uploadError } = await supabase.storage
+    const supabaseAdmin = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    const { error: uploadError } = await supabaseAdmin.storage
       .from('secure_documents')
       .upload(fileName, file)
 
     if (uploadError) throw new Error(`Storage upload failed: ${uploadError.message}`)
 
     // 4. Create Database Record
-    const { error: dbError } = await supabase
+    const { error: dbError } = await supabaseAdmin
       .from('documents')
       .insert({
         product_id: productId,
