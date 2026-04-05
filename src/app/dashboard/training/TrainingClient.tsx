@@ -169,7 +169,7 @@ export function TrainingClient() {
                       </div>
                     </DialogTrigger>
 
-                    <DialogContent className="max-w-4xl p-0 bg-bg-card border-border-subtle overflow-hidden shadow-2xl">
+                    <DialogContent className="max-w-4xl p-0 bg-bg-card border-border-subtle overflow-hidden shadow-2xl [&>button:last-child]:hidden">
                       <DialogHeader className="sr-only">
                         <DialogTitle>{module.title}</DialogTitle>
                         <DialogDescription>Video player for {module.title}</DialogDescription>

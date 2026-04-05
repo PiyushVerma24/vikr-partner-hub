@@ -6,6 +6,7 @@ import { Package, Search, SlidersHorizontal, X, ChevronRight, FileText, AlertTri
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { ShareProductButton } from "@/components/ShareProductButton"
 import { CATEGORIES, getProductDocumentBadges, type ViewProps } from "./types"
 
 export function ProductsMobileView({
@@ -15,6 +16,7 @@ export function ProductsMobileView({
   onSearchChange,
   onToggleCategory,
   onOpenProduct,
+  products,
   isLoading,
 }: ViewProps) {
   const [filterOpen, setFilterOpen] = useState(false)
@@ -72,7 +74,7 @@ export function ProductsMobileView({
 
       {/* ── Product list ── */}
       <div className="flex-1 px-4 py-3 space-y-3">
-        {isLoading ? (
+        {isLoading || products === null ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Loader2 className="w-10 h-10 text-brand-accent animate-spin mb-3" />
             <p className="text-sm font-bold text-text-main">Syncing Catalog...</p>
@@ -85,10 +87,17 @@ export function ProductsMobileView({
           </div>
         ) : (
           filteredProducts.map((product) => (
-            <button
+            <div
               key={product.id}
               onClick={() => onOpenProduct(product)}
-              className="w-full flex items-center gap-3 bg-bg-card border border-border-subtle rounded-xl p-3 text-left active:scale-[0.99] active:bg-bg-hover transition-all"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  onOpenProduct(product);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              className="w-full flex items-center gap-3 bg-bg-card border border-border-subtle rounded-xl p-3 text-left active:scale-[0.99] active:bg-bg-hover transition-all cursor-pointer relative"
             >
               {/* Product image */}
               <div className="relative w-[72px] h-[72px] bg-bg-hover rounded-lg border border-border-subtle shrink-0 overflow-hidden flex items-center justify-center">
@@ -112,9 +121,12 @@ export function ProductsMobileView({
                     {product.category}
                   </span>
                 )}
-                <h3 className="text-sm font-bold text-text-main leading-snug line-clamp-2">
+                <h3 className="text-sm font-bold text-text-main leading-snug line-clamp-2 pr-8">
                   {product.name}
                 </h3>
+                <div className="absolute top-2 right-8">
+                  <ShareProductButton product={product} />
+                </div>
                 {product.usp && (
                   <p className="text-[11px] text-text-muted mt-0.5 line-clamp-1 leading-relaxed">
                     {product.usp}
@@ -138,7 +150,7 @@ export function ProductsMobileView({
               </div>
 
               <ChevronRight className="w-4 h-4 text-text-meta shrink-0" />
-            </button>
+            </div>
           ))
         )}
       </div>

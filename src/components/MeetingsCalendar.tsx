@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 type Meeting = {
@@ -29,19 +29,18 @@ function toLocalDateKey(date: Date): string {
     return `${yyyy}-${mm}-${dd}`
 }
 
-const GRID_STYLE: React.CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "repeat(7, 1fr)",
-}
-
 export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
-    const today = new Date()
-    const todayKey = toLocalDateKey(today)
-
-    const [currentMonth, setCurrentMonth] = useState(
-        new Date(today.getFullYear(), today.getMonth(), 1)
-    )
+    const [mounted, setMounted] = useState(false)
+    const [currentMonth, setCurrentMonth] = useState<Date | null>(null)
     const [selectedDate, setSelectedDate] = useState<string | null>(null)
+    const [todayKey, setTodayKey] = useState<string>("")
+
+    useEffect(() => {
+        setMounted(true)
+        const now = new Date()
+        setTodayKey(toLocalDateKey(now))
+        setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1))
+    }, [])
 
     // Build date-string → meetings[] map
     const meetingMap = useMemo(() => {
@@ -56,6 +55,7 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
 
     // Build 42-cell grid
     const calendarCells = useMemo(() => {
+        if (!currentMonth) return []
         const year = currentMonth.getFullYear()
         const month = currentMonth.getMonth()
         const firstDow = new Date(year, month, 1).getDay() // 0 = Sun
@@ -86,89 +86,61 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
         return cells
     }, [currentMonth])
 
-    const prevMonth = () =>
+    const prevMonth = () => {
+        if (!currentMonth) return
         setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))
+    }
 
-    const nextMonth = () =>
+    const nextMonth = () => {
+        if (!currentMonth) return
         setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))
+    }
 
     const selectedMeetings = selectedDate ? (meetingMap.get(selectedDate) ?? []) : []
 
     const formatTime = (iso: string) =>
         new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", hour12: true })
 
+    if (!mounted || !currentMonth) {
+        return (
+            <div className="w-full h-[400px] bg-bg-card border border-border-subtle rounded-xl flex flex-col items-center justify-center space-y-4 animate-pulse">
+                <div className="w-10 h-10 border-2 border-brand-accent/20 border-t-brand-accent rounded-full animate-spin" />
+                <p className="text-xs font-bold text-text-meta tracking-widest uppercase">Initializing Calendar...</p>
+            </div>
+        )
+    }
+
     return (
-        <div
-            style={{ borderRadius: "0.75rem", overflow: "hidden", border: "1px solid #243018", background: "#121a0e" }}
-        >
+        <div className="rounded-xl overflow-hidden border border-border-subtle bg-bg-card">
             {/* ── Header ── */}
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "1rem 1.25rem",
-                    borderBottom: "1px solid #243018",
-                    background: "#1a2413",
-                }}
-            >
+            <div className="flex items-center justify-between p-4 border-b border-border-subtle bg-bg-hover/30">
                 <button
                     onClick={prevMonth}
                     aria-label="Previous month"
-                    style={{
-                        padding: "0.375rem",
-                        borderRadius: "0.5rem",
-                        color: "#8aab7a",
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#6abf30"; (e.currentTarget as HTMLButtonElement).style.background = "#243018" }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#8aab7a"; (e.currentTarget as HTMLButtonElement).style.background = "transparent" }}
+                    className="p-1.5 rounded-lg text-text-muted hover:text-brand-accent hover:bg-bg-hover transition-colors"
                 >
-                    <ChevronLeft style={{ width: 16, height: 16 }} />
+                    <ChevronLeft className="w-4 h-4" />
                 </button>
 
-                <span style={{ color: "#e8f0e2", fontWeight: 600, fontSize: "0.9375rem", letterSpacing: "0.02em" }}>
+                <span className="text-text-main font-bold text-sm tracking-wide">
                     {MONTHS[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                 </span>
 
                 <button
                     onClick={nextMonth}
                     aria-label="Next month"
-                    style={{
-                        padding: "0.375rem",
-                        borderRadius: "0.5rem",
-                        color: "#8aab7a",
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#6abf30"; (e.currentTarget as HTMLButtonElement).style.background = "#243018" }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#8aab7a"; (e.currentTarget as HTMLButtonElement).style.background = "transparent" }}
+                    className="p-1.5 rounded-lg text-text-muted hover:text-brand-accent hover:bg-bg-hover transition-colors"
                 >
-                    <ChevronRight style={{ width: 16, height: 16 }} />
+                    <ChevronRight className="w-4 h-4" />
                 </button>
             </div>
 
             {/* ── Day-of-week headers ── */}
-            <div style={{ ...GRID_STYLE, borderBottom: "1px solid #243018" }}>
+            <div className="grid grid-cols-7 border-b border-border-subtle">
                 {DAYS_OF_WEEK.map((d) => (
                     <div
                         key={d}
-                        style={{
-                            padding: "0.5rem 0",
-                            textAlign: "center",
-                            fontSize: "0.6875rem",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.12em",
-                            color: "#4a6040",
-                        }}
+                        className="py-2 text-center text-[10px] font-bold uppercase tracking-widest text-text-meta"
                     >
                         {d}
                     </div>
@@ -176,16 +148,12 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
             </div>
 
             {/* ── Day cells grid ── */}
-            <div style={GRID_STYLE}>
+            <div className="grid grid-cols-7">
                 {calendarCells.map((cell, idx) => {
                     const count = cell.current ? (meetingMap.get(cell.key)?.length ?? 0) : 0
                     const hasMeetings = count > 0
                     const isToday = cell.current && cell.key === todayKey
                     const isSelected = cell.key === selectedDate
-
-                    let bg = "transparent"
-                    if (isSelected) bg = "#1e2e16"
-                    else if (hasMeetings) bg = "rgba(26,36,19,0.7)"
 
                     return (
                         <button
@@ -195,51 +163,20 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
                                 setSelectedDate(isSelected ? null : cell.key)
                             }}
                             disabled={!cell.current}
-                            style={{
-                                position: "relative",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "flex-start",
-                                paddingTop: "0.75rem",
-                                paddingBottom: "0.75rem",
-                                minHeight: "64px",
-                                borderBottom: "1px solid #1a2413",
-                                borderRight: "1px solid #1a2413",
-                                background: bg,
-                                cursor: cell.current ? "pointer" : "default",
-                                opacity: cell.current ? 1 : 0.25,
-                                border: "none",
-                                outline: isSelected ? "1px solid rgba(106,191,48,0.35)" : "none",
-                                outlineOffset: "-1px",
-                                transition: "background 0.15s",
-                            }}
-                            onMouseEnter={(e) => {
-                                if (cell.current && !isSelected) {
-                                    (e.currentTarget as HTMLButtonElement).style.background = "#1a2413"
-                                }
-                            }}
-                            onMouseLeave={(e) => {
-                                if (cell.current && !isSelected) {
-                                    (e.currentTarget as HTMLButtonElement).style.background = bg
-                                }
-                            }}
+                            className={`
+                                relative flex flex-col items-center justify-start pt-3 pb-3 min-h-[64px]
+                                border-b border-r border-border-subtle/30 transition-colors
+                                ${cell.current ? 'cursor-pointer' : 'cursor-default opacity-25 grayscale'}
+                                ${isSelected ? 'bg-brand-accent/10' : hasMeetings ? 'bg-bg-card' : 'bg-transparent'}
+                                ${cell.current && !isSelected ? 'hover:bg-bg-hover' : ''}
+                            `}
                         >
                             {/* Day number */}
                             <span
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    width: "2rem",
-                                    height: "2rem",
-                                    borderRadius: "50%",
-                                    fontSize: "0.875rem",
-                                    fontWeight: isToday ? 700 : 500,
-                                    background: isToday ? "#6abf30" : "transparent",
-                                    color: isToday ? "#000" : isSelected ? "#6abf30" : cell.current ? "#e8f0e2" : "#4a6040",
-                                    transition: "color 0.15s",
-                                }}
+                                className={`
+                                    flex items-center justify-center w-8 h-8 rounded-full text-xs transition-colors
+                                    ${isToday ? 'bg-brand-accent text-black font-extrabold' : isSelected ? 'text-brand-accent font-bold' : cell.current ? 'text-text-main font-medium' : 'text-text-meta'}
+                                `}
                             >
                                 {cell.date.getDate()}
                             </span>
@@ -247,20 +184,7 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
                             {/* Meeting count badge */}
                             {hasMeetings && (
                                 <span
-                                    style={{
-                                        marginTop: "0.25rem",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        width: "1.125rem",
-                                        height: "1.125rem",
-                                        borderRadius: "50%",
-                                        background: "#6abf30",
-                                        color: "#000",
-                                        fontSize: "0.5625rem",
-                                        fontWeight: 700,
-                                        lineHeight: 1,
-                                    }}
+                                    className="mt-1 flex items-center justify-center w-4 h-4 rounded-full bg-brand-accent text-black text-[9px] font-extrabold"
                                 >
                                     {count}
                                 </span>
@@ -272,23 +196,8 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
 
             {/* ── Selected day detail panel ── */}
             {selectedDate && (
-                <div
-                    style={{
-                        borderTop: "1px solid #243018",
-                        background: "#0f1a0b",
-                        padding: "1rem 1.25rem",
-                    }}
-                >
-                    <p
-                        style={{
-                            fontSize: "0.6875rem",
-                            fontWeight: 600,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.12em",
-                            color: "#4a6040",
-                            marginBottom: "0.75rem",
-                        }}
-                    >
+                <div className="border-t border-border-subtle bg-bg-card/50 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-text-meta mb-3">
                         {selectedMeetings.length > 0
                             ? `Meetings on ${new Date(selectedDate + "T00:00:00").toLocaleDateString(undefined, {
                                 month: "long", day: "numeric", year: "numeric",
@@ -299,51 +208,33 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
                     </p>
 
                     {selectedMeetings.length === 0 ? (
-                        <p style={{ fontSize: "0.8125rem", color: "#4a6040", fontStyle: "italic", textAlign: "center" }}>
+                        <p className="text-xs text-text-meta italic text-center py-2">
                             Nothing scheduled for this day.
                         </p>
                     ) : (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <div className="flex flex-col gap-2">
                             {selectedMeetings.map((m) => {
                                 const isPast = new Date(m.date_time) < new Date()
                                 return (
                                     <div
                                         key={m.id}
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "space-between",
-                                            gap: "0.75rem",
-                                            padding: "0.75rem",
-                                            borderRadius: "0.5rem",
-                                            border: "1px solid #243018",
-                                            background: "#121a0e",
-                                        }}
+                                        className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border-subtle bg-bg-main"
                                     >
-                                        <div style={{ minWidth: 0 }}>
-                                            <p style={{ fontSize: "0.875rem", fontWeight: 500, color: "#e8f0e2", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-bold text-text-main truncate">
                                                 {m.title}
                                             </p>
-                                            <p style={{ fontSize: "0.75rem", color: "#8aab7a", marginTop: "0.125rem" }}>
+                                            <p className="text-xs text-text-muted mt-0.5">
                                                 {formatTime(m.date_time)}
                                             </p>
                                         </div>
-                                        <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
+                                        <div className="flex gap-2 shrink-0">
                                             {m.meet_link && !isPast && (
                                                 <a
                                                     href={m.meet_link}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    style={{
-                                                        fontSize: "0.75rem",
-                                                        padding: "0.25rem 0.6rem",
-                                                        borderRadius: "0.375rem",
-                                                        background: "rgba(106,191,48,0.15)",
-                                                        color: "#6abf30",
-                                                        border: "1px solid rgba(106,191,48,0.3)",
-                                                        textDecoration: "none",
-                                                        fontWeight: 500,
-                                                    }}
+                                                    className="text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 rounded-md bg-brand-accent/15 text-brand-accent border border-brand-accent/30 hover:bg-brand-accent/25 transition-colors"
                                                 >
                                                     Join
                                                 </a>
@@ -353,22 +244,13 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
                                                     href={m.recording_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    style={{
-                                                        fontSize: "0.75rem",
-                                                        padding: "0.25rem 0.6rem",
-                                                        borderRadius: "0.375rem",
-                                                        background: "#243018",
-                                                        color: "#8aab7a",
-                                                        border: "1px solid #2e3d1c",
-                                                        textDecoration: "none",
-                                                        fontWeight: 500,
-                                                    }}
+                                                    className="text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 rounded-md bg-bg-hover text-text-main border border-border-subtle hover:bg-bg-hover/80 transition-colors"
                                                 >
                                                     Recording
                                                 </a>
                                             )}
                                             {isPast && !m.recording_url && (
-                                                <span style={{ fontSize: "0.6875rem", color: "#4a6040", fontStyle: "italic" }}>Past</span>
+                                                <span className="text-[10px] uppercase font-bold tracking-widest text-text-meta italic">Past</span>
                                             )}
                                         </div>
                                     </div>
@@ -380,39 +262,18 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
             )}
 
             {/* ── Legend ── */}
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1.25rem",
-                    padding: "0.625rem 1.25rem",
-                    borderTop: "1px solid #243018",
-                    background: "rgba(26,36,19,0.4)",
-                }}
-            >
-                <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
-                    <span
-                        style={{
-                            width: "1.125rem", height: "1.125rem", borderRadius: "50%",
-                            background: "#6abf30", display: "flex", alignItems: "center",
-                            justifyContent: "center", fontSize: "0.5625rem", fontWeight: 700, color: "#000",
-                        }}
-                    >
+            <div className="flex items-center gap-5 p-3 border-t border-border-subtle bg-bg-hover/10">
+                <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-brand-accent flex items-center justify-center text-[8px] font-extrabold text-black">
                         n
                     </span>
-                    <span style={{ fontSize: "0.6875rem", color: "#4a6040" }}>= meeting count</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-text-meta">Meeting Count</span>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
-                    <span
-                        style={{
-                            width: "1.75rem", height: "1.75rem", borderRadius: "50%",
-                            background: "#6abf30", display: "flex", alignItems: "center",
-                            justifyContent: "center", fontSize: "0.875rem", fontWeight: 700, color: "#000",
-                        }}
-                    >
-                        {today.getDate()}
+                <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-brand-accent flex items-center justify-center text-xs font-extrabold text-black">
+                        {new Date().getDate()}
                     </span>
-                    <span style={{ fontSize: "0.6875rem", color: "#4a6040" }}>= today</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-text-meta">Today</span>
                 </div>
             </div>
         </div>

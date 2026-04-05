@@ -44,7 +44,7 @@ export default function Home() {
       <div className="absolute bottom-8 text-center text-xs text-[#4E5666] font-medium tracking-wide z-10 w-full flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6">
         <p>RESTRICTED: AUTHORIZED PERSONNEL ONLY</p>
         <span className="hidden sm:block">•</span>
-        <p>© {new Date().getFullYear()} VIKR BIOSCIENCE</p>
+        <p>© <span suppressHydrationWarning>{new Date().getFullYear()}</span> VIKR BIOSCIENCE</p>
       </div>
     </div>
   )

@@ -208,7 +208,7 @@ export default function SupportTicketingPage() {
                                        {ticket.status.replace("_", " ")}
                                     </Badge>
                                  )}
-                                 <span className="text-xs text-text-meta whitespace-nowrap">
+                                 <span className="text-xs text-text-meta whitespace-nowrap" suppressHydrationWarning>
                                     {new Date(ticket.created_at).toLocaleDateString()}
                                  </span>
                               </div>

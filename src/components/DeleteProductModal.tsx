@@ -6,7 +6,7 @@ import { Trash2 } from "lucide-react"
 import { deleteProducts } from "@/app/dashboard/actions/admin"
 import { EditableProduct } from "./EditProductModal"
 
-export function DeleteProductModal({ products, onSuccess }: { products: EditableProduct[], onSuccess: () => void }) {
+export function DeleteProductModal({ products, onSuccess }: { products: EditableProduct[] | null, onSuccess: () => void }) {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [isDeleting, setIsDeleting] = useState(false)
@@ -55,7 +55,9 @@ export function DeleteProductModal({ products, onSuccess }: { products: Editable
                 </DialogHeader>
 
                 <div className="flex-1 overflow-y-auto pr-2 space-y-2 border border-border-subtle rounded-md p-2 bg-bg-main mb-4">
-                    {products.length === 0 ? (
+                    {!products ? (
+                        <p className="p-4 text-center text-text-muted text-sm italic">Synchronizing product data...</p>
+                    ) : products.length === 0 ? (
                         <p className="p-4 text-center text-text-muted text-sm">No products available to delete.</p>
                     ) : (
                         products.map(p => (

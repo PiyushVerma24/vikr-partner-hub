@@ -16,7 +16,7 @@ import type { ProductListItem, ProductDetail, ProductDocument } from "./types"
 
 export function ProductsPage() {
   const { isAdmin } = useDashboard()
-  const [products, setProducts] = useState<ProductListItem[]>([])
+  const [products, setProducts] = useState<ProductListItem[] | null>(null)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [isLoading, setIsLoading] = useState(true)
@@ -41,7 +41,11 @@ export function ProductsPage() {
         )
         .eq("is_active", true)
         .order("name")
-      if (data) setProducts(data as ProductListItem[])
+      if (data) {
+        setProducts(data as ProductListItem[])
+      } else {
+        setProducts([])
+      }
     } finally {
       setIsLoading(false)
     }
@@ -128,7 +132,7 @@ export function ProductsPage() {
   const isHandWashVariant = (name: string) =>
     name !== "BIO HANDWASH" && name.toUpperCase().startsWith("BIO HAND WASH")
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = (products || []).filter((product) => {
     const matchesCategory =
       selectedCategories.length === 0 ||
       (product.category && selectedCategories.includes(product.category))
@@ -136,8 +140,8 @@ export function ProductsPage() {
     return matchesCategory && matchesSearch && !isAirFreshenerVariant(product.name) && !isHandWashVariant(product.name)
   })
 
-  const airFreshenerVariants = products.filter((p) => isAirFreshenerVariant(p.name))
-  const handWashVariants = products.filter((p) => isHandWashVariant(p.name))
+  const airFreshenerVariants = (products || []).filter((p) => isAirFreshenerVariant(p.name))
+  const handWashVariants = (products || []).filter((p) => isHandWashVariant(p.name))
 
   const getVarietiesForProduct = (productName: string) => {
     if (productName === "BIO AIR FRESHENER") return airFreshenerVariants

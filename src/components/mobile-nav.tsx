@@ -38,7 +38,7 @@ export function MobileNav({ navItems, logo, territory }: MobileNavProps) {
         <img
           src={logo}
           alt="VIKR Bioscience"
-          className="h-10 w-auto max-w-[200px] object-contain"
+          className="h-6 w-auto object-contain"
         />
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -107,7 +107,7 @@ export function MobileNav({ navItems, logo, territory }: MobileNavProps) {
           <div className="text-[10px] font-semibold text-text-muted">
             v{process.env.NEXT_PUBLIC_APP_VERSION}
           </div>
-          <div className="text-[9px] text-text-meta leading-tight">
+          <div className="text-[9px] text-text-meta leading-tight" suppressHydrationWarning>
             {mounted && process.env.NEXT_PUBLIC_BUILD_TIME
               ? new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString('en-IN', {
                   timeZone: 'Asia/Kolkata',

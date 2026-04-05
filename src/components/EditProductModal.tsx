@@ -35,7 +35,7 @@ const CATEGORIES = [
     "MEDICAL"
 ]
 
-export function EditProductModal({ products, onSuccess }: { products: EditableProduct[], onSuccess: () => void }) {
+export function EditProductModal({ products, onSuccess }: { products: EditableProduct[] | null, onSuccess: () => void }) {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedProductId, setSelectedProductId] = useState<string>("")
     const [isSaving, setIsSaving] = useState(false)
@@ -59,7 +59,7 @@ export function EditProductModal({ products, onSuccess }: { products: EditablePr
     // When dropdown changes, populate states
     const handleProductSelect = (id: string) => {
         setSelectedProductId(id)
-        const active = products.find(p => p.id === id)
+        const active = (products || []).find(p => p.id === id)
         if (active) {
             setMediaFile(null)
             setSku(active.sku || "")
@@ -172,7 +172,7 @@ export function EditProductModal({ products, onSuccess }: { products: EditablePr
                                 <SelectValue placeholder="Choose a product from catalog..." />
                             </SelectTrigger>
                             <SelectContent>
-                                {products.map(p => (
+                                {(products || []).map(p => (
                                     <SelectItem key={p.id} value={p.id}>{p.name} ({p.sku})</SelectItem>
                                 ))}
                             </SelectContent>

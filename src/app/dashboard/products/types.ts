@@ -45,7 +45,7 @@ export const CATEGORIES = [
 
 export type ViewProps = {
   filteredProducts: ProductListItem[]
-  products: ProductListItem[]
+  products: ProductListItem[] | null
   selectedCategories: string[]
   searchQuery: string
   onSearchChange: (q: string) => void

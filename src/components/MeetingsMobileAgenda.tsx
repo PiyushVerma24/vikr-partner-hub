@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { Video, ExternalLink, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -14,8 +14,8 @@ type Meeting = {
   notes: string | null
 }
 
-function MeetingCard({ meeting }: { meeting: Meeting }) {
-  const isPast = new Date(meeting.date_time) < new Date()
+function MeetingCard({ meeting, now }: { meeting: Meeting; now: Date }) {
+  const isPast = new Date(meeting.date_time) < now
   const d = new Date(meeting.date_time)
   const date = d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
   const time = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", hour12: true })
@@ -71,8 +71,16 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
 }
 
 export function MeetingsMobileAgenda({ meetings }: { meetings: Meeting[] }) {
+  const [mounted, setMounted] = useState(false)
+  const [now, setNow] = useState<Date | null>(null)
+
+  useEffect(() => {
+    setMounted(true)
+    setNow(new Date())
+  }, [])
+
   const { upcoming, past } = useMemo(() => {
-    const now = new Date()
+    if (!now) return { upcoming: [], past: [] }
     const sorted = [...meetings].sort(
       (a, b) => new Date(a.date_time).getTime() - new Date(b.date_time).getTime()
     )
@@ -80,7 +88,17 @@ export function MeetingsMobileAgenda({ meetings }: { meetings: Meeting[] }) {
       upcoming: sorted.filter((m) => new Date(m.date_time) >= now),
       past: sorted.filter((m) => new Date(m.date_time) < now).reverse(),
     }
-  }, [meetings])
+  }, [meetings, now])
+
+  if (!mounted || !now) {
+    return (
+      <div className="space-y-4 animate-pulse">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="h-24 bg-bg-card border border-border-subtle rounded-xl" />
+        ))}
+      </div>
+    )
+  }
 
   if (meetings.length === 0) {
     return (
@@ -99,7 +117,7 @@ export function MeetingsMobileAgenda({ meetings }: { meetings: Meeting[] }) {
             Upcoming
           </p>
           <div className="space-y-3">
-            {upcoming.map((m) => <MeetingCard key={m.id} meeting={m} />)}
+            {upcoming.map((m) => <MeetingCard key={m.id} meeting={m} now={now} />)}
           </div>
         </div>
       )}
@@ -109,7 +127,7 @@ export function MeetingsMobileAgenda({ meetings }: { meetings: Meeting[] }) {
             Past
           </p>
           <div className="space-y-3">
-            {past.map((m) => <MeetingCard key={m.id} meeting={m} />)}
+            {past.map((m) => <MeetingCard key={m.id} meeting={m} now={now} />)}
           </div>
         </div>
       )}

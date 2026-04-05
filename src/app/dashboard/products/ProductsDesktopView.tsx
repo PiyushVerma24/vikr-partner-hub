@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { EditProductModal, EditableProduct } from "@/components/EditProductModal"
 import { DeleteProductModal } from "@/components/DeleteProductModal"
+import { ShareProductButton } from "@/components/ShareProductButton"
 import { CATEGORIES, getProductDocumentBadges, type ViewProps } from "./types"
 
 export function ProductsDesktopView({
@@ -111,13 +112,16 @@ export function ProductsDesktopView({
               </div>
               <CardContent className="p-3 sm:p-5 lg:p-6 flex flex-col justify-center lg:justify-start flex-1 overflow-hidden min-w-0 bg-bg-card relative">
                 {product.category && (
-                  <span className="text-[9px] sm:text-[10px] lg:text-[11px] font-bold tracking-widest uppercase text-brand-accent mb-1 lg:mb-2 block truncate">
+                  <span className="text-[9px] sm:text-[10px] lg:text-[11px] font-bold tracking-widest uppercase text-brand-accent mb-1 lg:mb-2 block truncate pr-10">
                     {product.category}
                   </span>
                 )}
-                <h3 className="font-bold text-sm sm:text-base lg:text-xl text-text-main leading-snug line-clamp-2 lg:group-hover:text-brand-accent transition-colors">
+                <h3 className="font-bold text-sm sm:text-base lg:text-xl text-text-main leading-snug line-clamp-2 lg:group-hover:text-brand-accent transition-colors pr-10">
                   {product.name}
                 </h3>
+                <div className="absolute top-3 sm:top-5 right-3 sm:right-5">
+                  <ShareProductButton product={product} />
+                </div>
                 {product.usp ? (
                   <p className="text-[11px] sm:text-xs lg:text-sm text-text-muted mt-1 sm:mt-2 lg:mt-3 line-clamp-2 lg:line-clamp-3 leading-relaxed">
                     {product.usp}
@@ -147,7 +151,7 @@ export function ProductsDesktopView({
           ))}
         </div>
 
-        {isLoading ? (
+        {isLoading || products === null ? (
           <div className="flex flex-col items-center justify-center py-32 text-center w-full col-span-full">
             <Loader2 className="w-12 h-12 text-brand-accent animate-spin mb-4" />
             <h3 className="text-lg font-bold tracking-tight text-text-main">Syncing Product Catalog...</h3>
@@ -155,7 +159,7 @@ export function ProductsDesktopView({
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center px-4">
-            <Package className="w-12 h-12 text-zinc-300 mb-4" />
+            <Package className="w-12 h-12 text-zinc-300 mb-4" strokeWidth={1} />
             <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">No products found</h3>
             <p className="text-zinc-500 mt-1 max-w-sm">
               Try adjusting your filters or wait for admins to add products accessible to your region.

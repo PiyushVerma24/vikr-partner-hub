@@ -71,3 +71,35 @@ export async function getAllDocuments() {
     return { success: false, data: null, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
+
+export async function getBatchSecureDocumentUrls(documentIds: string[], expiresInSeconds: number = 3600) {
+    const supabase = await createClient()
+    try {
+        const { data: documents, error: docError } = await supabase
+            .from('documents')
+            .select('id, title, file_url')
+            .in('id', documentIds)
+
+        if (docError) throw docError
+        if (!documents) throw new Error('No documents found')
+
+        const results = await Promise.all(
+            documents.map(async (doc) => {
+                const { data, error } = await supabase.storage
+                    .from('secure_documents')
+                    .createSignedUrl(doc.file_url, expiresInSeconds)
+                return {
+                    id: doc.id,
+                    title: doc.title,
+                    url: data?.signedUrl || null,
+                    error: error?.message || null
+                }
+            })
+        )
+
+        return { success: true, results }
+    } catch (err) {
+        console.error('Batch secure URL error:', err)
+        return { success: false, error: 'Failed to generate batch secure links' }
+    }
+}

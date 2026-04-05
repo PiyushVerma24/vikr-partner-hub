@@ -100,7 +100,7 @@ function Sidebar() {
           <div className="px-1 pt-1 border-t border-border-subtle/50">
             <div className="text-[9px] font-bold uppercase tracking-[0.1em] text-text-meta mb-0.5">About App</div>
             <div className="text-[10px] font-semibold text-text-muted">v{process.env.NEXT_PUBLIC_APP_VERSION}</div>
-            <div className="text-[9px] text-text-meta leading-tight">
+            <div className="text-[9px] text-text-meta leading-tight" suppressHydrationWarning>
               {mounted ? buildTime : "—"}
             </div>
           </div>
@@ -113,7 +113,7 @@ function Sidebar() {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <DashboardProvider>
-      <div className="dashboard-scope flex flex-col md:flex-row h-screen overflow-hidden bg-bg-main text-text-main">
+      <div className="dashboard-scope flex flex-col md:flex-row min-h-screen bg-bg-main text-text-main">
         <Sidebar />
         <main className="flex-1 overflow-y-auto w-full pb-safe">
           {children}
