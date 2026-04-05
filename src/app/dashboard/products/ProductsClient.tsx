@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { Package, FileText, X, Loader2 } from "lucide-react"
+import { Package, FileText, X, Loader2, Download } from "lucide-react"
 import { getSecureDocumentUrl } from "@/app/dashboard/actions/document"
 import { ShareDocumentButton } from "@/components/ShareDocumentButton"
 import Image from "next/image"
@@ -19,6 +19,7 @@ export function ProductsPage() {
   const [products, setProducts] = useState<ProductListItem[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
 
   // ── Dialog / detail state ──────────────────────────────────────
   const [openProduct, setOpenProduct] = useState<ProductListItem | null>(null)
@@ -30,15 +31,20 @@ export function ProductsPage() {
 
   // ── Data fetch ──────────────────────────────────────────────────
   const fetchProducts = async () => {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from("products")
-      .select(
-        "id, sku, name, description, category, ph_level, usp, features_benefits, applications, ingredients, directions_to_use, product_media(id, media_url, type), documents(*)"
-      )
-      .eq("is_active", true)
-      .order("name")
-    if (data) setProducts(data as ProductListItem[])
+    setIsLoading(true)
+    try {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("products")
+        .select(
+          "id, sku, name, description, category, ph_level, usp, features_benefits, applications, ingredients, directions_to_use, product_media(id, media_url, type), documents(*)"
+        )
+        .eq("is_active", true)
+        .order("name")
+      if (data) setProducts(data as ProductListItem[])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => { fetchProducts() }, [])
@@ -94,6 +100,19 @@ export function ProductsPage() {
     }
   }
 
+  const handleDownloadDocument = async (doc: ProductDocument) => {
+    try {
+      const { success, url, error } = await getSecureDocumentUrl(doc.id, 60, true)
+      if (success && url) {
+        window.open(url, '_blank')
+      } else {
+        alert(error || "Download failed")
+      }
+    } catch (err) {
+      console.error("Error downloading document:", err)
+    }
+  }
+
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
       prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
@@ -146,6 +165,7 @@ export function ProductsPage() {
     onOpenProduct: handleOpenProduct,
     isAdmin,
     onAdminRefresh: fetchProducts,
+    isLoading,
   }
 
   return (
@@ -347,13 +367,15 @@ export function ProductsPage() {
                                 </span>
                               </div>
                               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-auto">
-                                <Badge
-                                  variant="outline"
-                                  className="text-[10px] leading-none py-1 px-2 font-bold font-mono border-border-subtle h-auto text-text-muted bg-bg-main"
-                                >
-                                  {doc.category}
-                                </Badge>
-                                <div onClick={(e) => e.stopPropagation()} className="w-full sm:w-auto">
+                                <div onClick={(e) => e.stopPropagation()} className="w-full sm:w-auto flex items-center gap-2">
+                                  <button
+                                    onClick={() => handleDownloadDocument(doc)}
+                                    className="p-2 bg-brand-accent/10 hover:bg-brand-accent/20 text-text-brand rounded-lg transition-colors border border-brand-accent/20 h-[44px] px-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider"
+                                    title="Quick Download"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                    Download
+                                  </button>
                                   <ShareDocumentButton documentId={doc.id} title={doc.title} />
                                 </div>
                               </div>
@@ -442,12 +464,20 @@ export function ProductsPage() {
                   ) : (
                     <iframe
                       src={
-                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.docx') || 
-                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.doc') || 
-                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.xlsx') || 
-                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.pptx')
-                          ? `https://docs.google.com/viewer?url=${encodeURIComponent(viewingDoc.url)}&embedded=true`
-                          : viewingDoc.url
+                        (() => {
+                          const fileUrl = viewingDoc.doc.file_url?.toLowerCase() || '';
+                          const isDoc = fileUrl.endsWith('.docx') || fileUrl.endsWith('.doc') || 
+                                       fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.xls') || 
+                                       fileUrl.endsWith('.pptx') || fileUrl.endsWith('.ppt') ||
+                                       fileUrl.endsWith('.rtf');
+                          const isCoshh = viewingDoc.doc.title?.toUpperCase().includes('COSHH') || 
+                                         viewingDoc.doc.category?.toUpperCase() === 'COSHH';
+                          
+                          if (isDoc || isCoshh) {
+                            return `https://docs.google.com/viewer?url=${encodeURIComponent(viewingDoc.url)}&embedded=true`;
+                          }
+                          return viewingDoc.url;
+                        })()
                       }
                       style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
                       title={viewingDoc.doc.title}

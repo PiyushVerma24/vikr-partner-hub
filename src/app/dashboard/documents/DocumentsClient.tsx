@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { FileText, Search, Database, Trash2 } from "lucide-react"
+import { FileText, Search, Database, Trash2, Download } from "lucide-react"
 import { getSecureDocumentUrl } from "@/app/dashboard/actions/document"
 import { deleteProductDocument } from "@/app/dashboard/actions/admin"
 import { createClient } from "@/utils/supabase/client"
@@ -102,8 +102,22 @@ export function DocumentsClient() {
         }
     }
 
+    const handleDownload = async (docId: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+        try {
+            const { success, url, error } = await getSecureDocumentUrl(docId, 60, true)
+            if (success && url) {
+                window.open(url, '_blank')
+            } else {
+                alert(error || 'Download failed')
+            }
+        } catch (err) {
+            console.error('Error downloading:', err)
+        }
+    }
+
     return (
-        <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 bg-bg-main border-border-subtle text-text-main" style={{ borderColor: '#243018' }}>
+        <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 bg-bg-main border-border-subtle text-text-main">
             <div className="flex flex-col gap-1">
                 <h2 className="text-sm font-bold tracking-widest text-brand-accent uppercase">Global Repository</h2>
                 <h1 className="text-3xl font-extrabold tracking-tight text-text-main mb-2">Documents</h1>
@@ -122,10 +136,10 @@ export function DocumentsClient() {
                 </div>
                 {uniqueCategories.length > 0 && (
                     <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                        <SelectTrigger className="w-full md:w-[220px] h-12 border-border-subtle text-text-main focus:ring-[#6abf30] focus:border-brand-accent" style={{ backgroundColor: '#1A2411' }}>
+                        <SelectTrigger className="w-full md:w-[220px] h-12 bg-bg-card border-border-subtle text-text-main focus:ring-[#6abf30] focus:border-brand-accent">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
-                        <SelectContent className="border-border-subtle text-text-main" style={{ backgroundColor: '#1A2411' }}>
+                        <SelectContent className="bg-bg-card border-border-subtle text-text-main">
                             <SelectItem value="All">All Categories</SelectItem>
                             {uniqueCategories.map(cat => (
                                 <SelectItem key={cat} value={cat}>{cat}</SelectItem>
@@ -158,11 +172,11 @@ export function DocumentsClient() {
                         </div>
                     ) : filteredDocs.length === 0 ? (
                         <div className="py-24 text-center">
-                            <FileText className="w-12 h-12 text-[#243018] mx-auto mb-4" />
+                            <FileText className="w-12 h-12 text-text-meta mx-auto mb-4" />
                             <p className="text-sm font-bold tracking-wide text-text-meta uppercase">No documents found matching your search</p>
                         </div>
                     ) : (
-                        <div className="divide-y divide-[#243018]">
+                        <div className="divide-y divide-border-subtle">
                             {filteredDocs.map((doc) => (
                                 <div key={doc.id} className="p-4 sm:p-6 hover:bg-bg-hover/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
                                     <div
@@ -194,6 +208,14 @@ export function DocumentsClient() {
                                         </div>
                                     </div>
                                     <div className="shrink-0 flex items-center justify-start sm:justify-end border-t border-border-subtle mt-4 pt-4 sm:border-0 sm:mt-0 sm:pt-0 w-full sm:w-auto gap-2">
+                                        <button
+                                            onClick={(e) => handleDownload(doc.id, e)}
+                                            className="p-2 bg-brand-accent/10 hover:bg-brand-accent/20 text-brand-accent px-4 py-2 rounded-lg transition-colors h-[42px] flex items-center justify-center shrink-0 border border-brand-accent/20 text-xs font-bold uppercase tracking-wider gap-2 shadow-sm"
+                                            title="Quick Download"
+                                        >
+                                            <Download className="w-4 h-4" />
+                                            Download
+                                        </button>
                                         <ShareDocumentButton documentId={doc.id} title={doc.title} />
                                         {isAdmin && (
                                             <button
@@ -216,7 +238,6 @@ export function DocumentsClient() {
                 <DialogContent
                     className="flex flex-col bg-bg-card border-border-subtle overflow-hidden"
                     style={{
-                        borderColor: '#243018',
                         width: viewingDoc?.isImage ? 'fit-content' : 'calc(100vw - 40px)',
                         height: viewingDoc?.isImage ? 'fit-content' : 'calc(100vh - 40px)',
                         maxWidth: 'calc(100vw - 40px)',
@@ -245,12 +266,20 @@ export function DocumentsClient() {
                             ) : (
                                 <iframe
                                     src={
-                                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.docx') || 
-                                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.doc') || 
-                                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.xlsx') || 
-                                        viewingDoc.doc.file_url?.toLowerCase().endsWith('.pptx')
-                                          ? `https://docs.google.com/viewer?url=${encodeURIComponent(viewingDoc.url)}&embedded=true`
-                                          : viewingDoc.url
+                                        (() => {
+                                            const fileUrl = viewingDoc.doc.file_url?.toLowerCase() || '';
+                                            const isDoc = fileUrl.endsWith('.docx') || fileUrl.endsWith('.doc') || 
+                                                         fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.xls') || 
+                                                         fileUrl.endsWith('.pptx') || fileUrl.endsWith('.ppt') ||
+                                                         fileUrl.endsWith('.rtf');
+                                            const isCoshh = viewingDoc.doc.title?.toUpperCase().includes('COSHH') || 
+                                                           viewingDoc.doc.category?.toUpperCase() === 'COSHH';
+                                            
+                                            if (isDoc || isCoshh) {
+                                                return `https://docs.google.com/viewer?url=${encodeURIComponent(viewingDoc.url)}&embedded=true`;
+                                            }
+                                            return viewingDoc.url;
+                                        })()
                                     }
                                     style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
                                     title={viewingDoc.doc.title}

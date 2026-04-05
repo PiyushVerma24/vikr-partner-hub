@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Package, Search, Filter, FileText, AlertTriangle, FileCheck } from "lucide-react"
+import { Package, Search, Filter, FileText, AlertTriangle, FileCheck, Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,7 @@ export function ProductsDesktopView({
   onOpenProduct,
   isAdmin,
   onAdminRefresh,
+  isLoading,
 }: ViewProps) {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto flex flex-col gap-4 md:gap-6 w-full">
@@ -146,7 +147,13 @@ export function ProductsDesktopView({
           ))}
         </div>
 
-        {filteredProducts.length === 0 && (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-32 text-center w-full col-span-full">
+            <Loader2 className="w-12 h-12 text-brand-accent animate-spin mb-4" />
+            <h3 className="text-lg font-bold tracking-tight text-text-main">Syncing Product Catalog...</h3>
+            <p className="text-text-meta text-xs uppercase tracking-widest mt-1">Fetching latest regional data</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center px-4">
             <Package className="w-12 h-12 text-zinc-300 mb-4" />
             <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">No products found</h3>
@@ -154,7 +161,7 @@ export function ProductsDesktopView({
               Try adjusting your filters or wait for admins to add products accessible to your region.
             </p>
           </div>
-        )}
+        ) : null}
       </main>
     </div>
   )

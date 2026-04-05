@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Package, Search, SlidersHorizontal, X, ChevronRight, FileText, AlertTriangle } from "lucide-react"
+import { Package, Search, SlidersHorizontal, X, ChevronRight, FileText, AlertTriangle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -15,6 +15,7 @@ export function ProductsMobileView({
   onSearchChange,
   onToggleCategory,
   onOpenProduct,
+  isLoading,
 }: ViewProps) {
   const [filterOpen, setFilterOpen] = useState(false)
 
@@ -71,7 +72,12 @@ export function ProductsMobileView({
 
       {/* ── Product list ── */}
       <div className="flex-1 px-4 py-3 space-y-3">
-        {filteredProducts.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Loader2 className="w-10 h-10 text-brand-accent animate-spin mb-3" />
+            <p className="text-sm font-bold text-text-main">Syncing Catalog...</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Package className="w-10 h-10 text-text-meta mb-3" strokeWidth={1} />
             <p className="text-sm font-medium text-text-muted">No products found</p>

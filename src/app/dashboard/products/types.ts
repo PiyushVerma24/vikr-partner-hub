@@ -53,6 +53,7 @@ export type ViewProps = {
   onOpenProduct: (p: ProductListItem) => void
   isAdmin: boolean
   onAdminRefresh: () => void
+  isLoading: boolean
 }
 
 export function getProductDocumentBadges(product: ProductListItem): string[] {

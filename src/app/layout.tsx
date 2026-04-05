@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PwaRegister } from "@/components/pwa-register";
+import Script from "next/script";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -40,7 +41,11 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-        <script
+      </head>
+      <body className={`${poppins.variable} ${poppins.className} antialiased`}>
+        <Script
+          id="theme-strategy"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               try {
@@ -53,8 +58,6 @@ export default function RootLayout({
             `,
           }}
         />
-      </head>
-      <body className={`${poppins.variable} ${poppins.className} antialiased`}>
         <ThemeProvider>
           {children}
         </ThemeProvider>

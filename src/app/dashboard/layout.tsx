@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Users, FileText, Package, LayoutDashboard, Video, LifeBuoy, Database, Key } from "lucide-react"
 import { NavItem } from "@/components/nav-item"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -25,6 +26,11 @@ const buildTime = process.env.NEXT_PUBLIC_BUILD_TIME
 
 function Sidebar() {
   const { profile, isAdmin } = useDashboard()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const navItems = [
     ...navBase,
@@ -39,7 +45,7 @@ function Sidebar() {
       <MobileNav navItems={navItems} logo="/vikr-logo-new.svg" territory={profile?.territory_code ?? undefined} />
 
       {/* Desktop sidebar */}
-      <aside className="w-[252px] border-r bg-bg-card border-border-subtle hidden md:flex flex-col shrink-0">
+      <aside className="w-[252px] h-screen sticky top-0 border-r bg-bg-card border-border-subtle hidden md:flex flex-col shrink-0">
         {/* Logo */}
         <div className="px-4 pt-5 pb-4 border-b border-border-subtle">
           <img src="/vikr-logo-new.svg" alt="VIKR Bioscience" className="h-[56px] w-auto max-w-[220px] object-contain object-left" />
@@ -94,7 +100,9 @@ function Sidebar() {
           <div className="px-1 pt-1 border-t border-border-subtle/50">
             <div className="text-[9px] font-bold uppercase tracking-[0.1em] text-text-meta mb-0.5">About App</div>
             <div className="text-[10px] font-semibold text-text-muted">v{process.env.NEXT_PUBLIC_APP_VERSION}</div>
-            <div className="text-[9px] text-text-meta leading-tight">{buildTime}</div>
+            <div className="text-[9px] text-text-meta leading-tight">
+              {mounted ? buildTime : "—"}
+            </div>
           </div>
         </div>
       </aside>
@@ -105,7 +113,7 @@ function Sidebar() {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <DashboardProvider>
-      <div className="dashboard-scope flex flex-col md:flex-row min-h-screen bg-bg-main text-text-main">
+      <div className="dashboard-scope flex flex-col md:flex-row h-screen overflow-hidden bg-bg-main text-text-main">
         <Sidebar />
         <main className="flex-1 overflow-y-auto w-full pb-safe">
           {children}

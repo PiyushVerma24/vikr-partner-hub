@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { revalidatePath } from 'next/cache'
 
-export async function getSecureDocumentUrl(documentId: string, expiresInSeconds: number = 3600) {
+export async function getSecureDocumentUrl(documentId: string, expiresInSeconds: number = 3600, download: boolean = false) {
   const supabase = await createClient()
 
   try {
@@ -24,7 +24,7 @@ export async function getSecureDocumentUrl(documentId: string, expiresInSeconds:
       .storage
       .from('secure_documents')
       .createSignedUrl(document.file_url, expiresInSeconds, {
-        download: false
+        download: download
       })
 
     if (error) throw error

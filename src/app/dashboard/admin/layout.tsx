@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen w-full flex-col bg-bg-main">
@@ -7,11 +9,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="h-6 w-6 rounded-md bg-brand-accent flex items-center justify-center text-black text-xs font-extrabold">V</div>
             <span className="font-semibold text-text-main tracking-tight">VIKR Control Panel</span>
           </div>
-          <div className="mx-4 h-5 w-px bg-[#243018] hidden sm:block"></div>
+          <div className="mx-4 h-5 w-px border-l border-border-subtle hidden sm:block"></div>
           <nav className="hidden sm:flex items-center gap-4 text-sm font-medium">
-            <a href="/dashboard/admin/users" className="text-text-muted hover:text-brand-accent transition-colors">Users</a>
-            <a href="/dashboard/admin/cms" className="text-text-muted hover:text-brand-accent transition-colors">CMS</a>
-            <a href="/dashboard/admin/meetings" className="text-text-muted hover:text-brand-accent transition-colors">Meetings</a>
+            <Link href="/dashboard/admin/users" className="text-text-muted hover:text-brand-accent transition-colors">Users</Link>
+            <Link href="/dashboard/admin/cms" className="text-text-muted hover:text-brand-accent transition-colors">CMS</Link>
+            <Link href="/dashboard/admin/meetings" className="text-text-muted hover:text-brand-accent transition-colors">Meetings</Link>
           </nav>
         </div>
       </header>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Menu, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -18,7 +18,12 @@ type MobileNavProps = {
 
 export function MobileNav({ navItems, logo, territory }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const isActive = (href: string) => {
     return href === "/dashboard"
@@ -103,7 +108,7 @@ export function MobileNav({ navItems, logo, territory }: MobileNavProps) {
             v{process.env.NEXT_PUBLIC_APP_VERSION}
           </div>
           <div className="text-[9px] text-text-meta leading-tight">
-            {process.env.NEXT_PUBLIC_BUILD_TIME
+            {mounted && process.env.NEXT_PUBLIC_BUILD_TIME
               ? new Date(process.env.NEXT_PUBLIC_BUILD_TIME).toLocaleString('en-IN', {
                   timeZone: 'Asia/Kolkata',
                   day: '2-digit',
