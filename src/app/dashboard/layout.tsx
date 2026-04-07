@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Users, FileText, Package, LayoutDashboard, Video, LifeBuoy, Database, Key } from "lucide-react"
 import { NavItem } from "@/components/nav-item"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { MobileNav } from "@/components/mobile-nav"
 import { DashboardProvider, useDashboard } from "@/contexts/DashboardContext"
 
@@ -91,7 +90,6 @@ function Sidebar() {
         </nav>
 
         <div className="p-3 border-t border-border-subtle bg-bg-card shrink-0 space-y-2 mt-auto">
-          <ThemeToggle />
           <form action="/auth/signout" method="post">
             <button className="flex w-full items-center justify-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-[#FF4C4C] hover:bg-[#FF4C4C]/10 rounded-md transition-all border border-transparent hover:border-[#FF4C4C]/20 uppercase">
               Sign Out

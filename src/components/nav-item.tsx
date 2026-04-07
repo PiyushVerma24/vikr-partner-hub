@@ -22,8 +22,8 @@ export function NavItem({ href, icon, label, badge, badgeColor = "green" }: NavI
         <Link
             href={href}
             className={`relative flex items-center gap-[10px] mx-2 my-[1px] px-[14px] py-[9px] text-[13px] rounded-lg transition-all select-none ${active
-                ? "bg-brand-accent/15 text-text-brand font-bold"
-                : "text-text-muted hover:text-text-main hover:bg-bg-hover font-medium"
+                ? "bg-brand-accent/15 text-black font-bold"
+                : "text-black hover:text-black hover:bg-bg-hover font-medium"
                 }`}
         >
             {/* Left active indicator */}
