@@ -621,3 +621,57 @@ export async function deleteProductDocument(documentId: string) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
+
+export async function getAnnouncements() {
+  const supabase = await createClient()
+  try {
+    await requireAdmin(supabase)
+    const { data, error } = await supabase
+      .from('announcements')
+      .select('*')
+      .order('date_posted', { ascending: false })
+    if (error) throw error
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error('Error fetching announcements:', error)
+    return { success: false, data: null, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}
+
+export async function archiveAnnouncement(announcementId: string) {
+  const supabase = await createClient()
+  try {
+    await requireAdmin(supabase)
+    const { error } = await supabase
+      .from('announcements')
+      .update({ is_archived: true })
+      .eq('id', announcementId)
+    if (error) throw error
+    revalidatePath('/dashboard')
+    revalidatePath('/dashboard/admin/cms')
+    revalidatePath('/dashboard/announcements')
+    return { success: true }
+  } catch (error: unknown) {
+    console.error('Error archiving announcement:', error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}
+
+export async function deleteAnnouncement(announcementId: string) {
+  const supabase = await createClient()
+  try {
+    await requireAdmin(supabase)
+    const { error } = await supabase
+      .from('announcements')
+      .delete()
+      .eq('id', announcementId)
+    if (error) throw error
+    revalidatePath('/dashboard')
+    revalidatePath('/dashboard/admin/cms')
+    revalidatePath('/dashboard/announcements')
+    return { success: true }
+  } catch (error: unknown) {
+    console.error('Error deleting announcement:', error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
+}

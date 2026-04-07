@@ -22,7 +22,7 @@ export default function DashboardPage() {
       supabase.from("products").select("id", { count: "exact", head: true }).eq("is_active", true),
       supabase.from("training_hub_videos").select("id", { count: "exact", head: true }),
       supabase.from("documents").select("id", { count: "exact", head: true }),
-      supabase.from("announcements").select("*").order("is_pinned", { ascending: false }).order("date_posted", { ascending: false }).limit(5),
+      supabase.from("announcements").select("*").eq("is_archived", false).order("is_pinned", { ascending: false }).order("date_posted", { ascending: false }).limit(5),
     ]).then(([p, t, d, a]) => {
       setProductCount(p.count ?? 0)
       setTrainingCount(t.count ?? 0)

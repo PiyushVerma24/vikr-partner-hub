@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, FileText, Package, LayoutDashboard, Video, LifeBuoy, Database, Key } from "lucide-react"
+import { Users, FileText, Package, LayoutDashboard, Video, LifeBuoy, Database, Key, Bell } from "lucide-react"
 import { NavItem } from "@/components/nav-item"
 import { MobileNav } from "@/components/mobile-nav"
 import { DashboardProvider, useDashboard } from "@/contexts/DashboardContext"
@@ -10,6 +10,7 @@ const navBase = [
   { href: "/dashboard", icon: <LayoutDashboard className="w-[15px] h-[15px]" />, label: "Dashboard" },
   { href: "/dashboard/products", icon: <Package className="w-[15px] h-[15px]" />, label: "Product Catalog" },
   { href: "/dashboard/training", icon: <Video className="w-[15px] h-[15px]" />, label: "Training Hub" },
+  { href: "/dashboard/announcements", icon: <Bell className="w-[15px] h-[15px]" />, label: "Announcements" },
   { href: "/dashboard/meetings", icon: <Users className="w-[15px] h-[15px]" />, label: "Meetings" },
   { href: "/dashboard/support", icon: <LifeBuoy className="w-[15px] h-[15px]" />, label: "Support Requests" },
   { href: "/dashboard/documents", icon: <FileText className="w-[15px] h-[15px]" />, label: "Documents" },
@@ -74,6 +75,7 @@ function Sidebar() {
           <NavItem href="/dashboard/training" icon={<Video className="w-[15px] h-[15px]" />} label="Training Hub" />
 
           <div className="text-[9px] uppercase tracking-[0.12em] text-text-meta font-bold px-4 mt-4 mb-1">Communication</div>
+          <NavItem href="/dashboard/announcements" icon={<Bell className="w-[15px] h-[15px]" />} label="Announcements" />
           <NavItem href="/dashboard/meetings" icon={<Users className="w-[15px] h-[15px]" />} label="Meetings" />
           <NavItem href="/dashboard/support" icon={<LifeBuoy className="w-[15px] h-[15px]" />} label="Support Requests" />
 
