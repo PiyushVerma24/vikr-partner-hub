@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'VIKR Partner Hub',
-    short_name: 'VIKR Hub',
+    name: 'VIKR',
+    short_name: 'VIKR',
     description: 'Secure Partner Hub — product catalog, training, documents and support for VIKR Bioscience regional partners.',
     start_url: '/dashboard',
     scope: '/',
