@@ -95,9 +95,19 @@ export function DocumentsClient() {
                 const isCertificate = doc.title?.toUpperCase().includes('CERTIFICATE') ||
                                      doc.category?.toUpperCase().includes('CERTIFICATE')
 
-                const openUrl = (isDoc || isPdf || isCoshh || isMsds || isCertificate)
-                    ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
-                    : url
+                // For PDFs: open directly (browsers render PDFs natively)
+                // For office docs: use Google Docs Viewer
+                // For COSHH/MSDS/Certificate: check file type first, then decide
+                let openUrl = url
+
+                if (isDoc) {
+                    // Office documents need Google Docs Viewer
+                    openUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
+                } else if ((isCoshh || isMsds || isCertificate) && !isPdf) {
+                    // Only use Viewer if it's not a PDF (check by file extension)
+                    openUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
+                }
+                // Otherwise use URL directly (PDFs, images, etc.)
 
                 // Use anchor tag click instead of window.open() for better mobile support
                 const link = document.createElement('a')
