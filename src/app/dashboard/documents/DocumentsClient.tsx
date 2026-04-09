@@ -90,8 +90,12 @@ export function DocumentsClient() {
                 const isPdf = fileUrl.endsWith('.pdf')
                 const isCoshh = doc.title?.toUpperCase().includes('COSHH') ||
                                doc.category?.toUpperCase() === 'COSHH'
+                const isMsds = doc.title?.toUpperCase().includes('MSDS') ||
+                              doc.category?.toUpperCase() === 'MSDS'
+                const isCertificate = doc.title?.toUpperCase().includes('CERTIFICATE') ||
+                                     doc.category?.toUpperCase().includes('CERTIFICATE')
 
-                const openUrl = (isDoc || isCoshh)
+                const openUrl = (isDoc || isPdf || isCoshh || isMsds || isCertificate)
                     ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
                     : url
 
