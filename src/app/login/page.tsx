@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ShieldAlert } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -26,7 +25,6 @@ export default async function LoginPage(props: Props) {
           </div>
           <span className="font-bold tracking-widest text-sm text-text-main">VIKR</span>
         </div>
-        {/* <ThemeToggle /> - Hidden: Light mode only. Can re-enable theme toggle later if needed */}
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4 z-10">

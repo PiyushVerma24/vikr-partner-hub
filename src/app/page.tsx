@@ -1,17 +1,12 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, ShieldCheck } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-bg-main text-text-main p-4 relative overflow-hidden transition-colors duration-200">
 
-      <div className="absolute top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
-
-      {/* Subtle background glow effect */}
+{/* Subtle background glow effect */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-accent/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="text-center space-y-8 max-w-2xl z-10">
