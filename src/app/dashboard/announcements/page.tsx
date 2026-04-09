@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/utils/supabase/client"
-import { useAuth } from "@/hooks/useAuth"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, Bell, Archive } from "lucide-react"
 
@@ -19,7 +18,6 @@ interface Announcement {
 
 export default function AnnouncementsPage() {
   const supabase = createClient()
-  const { user } = useAuth()
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [archivedAnnouncements, setArchivedAnnouncements] = useState<Announcement[]>([])
   const [territory, setTerritory] = useState<string | null>(null)
@@ -28,11 +26,16 @@ export default function AnnouncementsPage() {
 
   useEffect(() => {
     const loadData = async () => {
-      if (!user?.id) return
-
       setIsLoading(true)
 
       try {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user?.id) {
+          setIsLoading(false)
+          return
+        }
+
         // Get user territory
         const { data: profile } = await supabase
           .from('profiles')
