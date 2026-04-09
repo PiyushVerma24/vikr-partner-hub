@@ -26,7 +26,7 @@ export default async function LoginPage(props: Props) {
           </div>
           <span className="font-bold tracking-widest text-sm text-text-main">VIKR<span className="text-brand-accent">HUB</span></span>
         </div>
-        <ThemeToggle />
+        {/* <ThemeToggle /> - Hidden: Light mode only. Can re-enable theme toggle later if needed */}
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4 z-10">
