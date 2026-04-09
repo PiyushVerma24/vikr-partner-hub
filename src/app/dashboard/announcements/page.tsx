@@ -79,7 +79,7 @@ export default function AnnouncementsPage() {
     }
 
     loadData()
-  }, [user?.id])
+  }, [])
 
   if (isLoading) {
     return (
