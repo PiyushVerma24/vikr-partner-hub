@@ -86,13 +86,30 @@ export function ProductsPage() {
     try {
       const { success, url, error } = await getSecureDocumentUrl(doc.id)
       if (success && url) {
-        const isImg = await new Promise<boolean>((resolve) => {
-          const img = new window.Image()
-          img.onload = () => resolve(true)
-          img.onerror = () => resolve(false)
-          img.src = url
-        })
-        setViewingDoc({ doc, url, isImage: isImg })
+        // Open documents directly in new tab instead of modal
+        // This avoids intermediate pages and extra clicks on mobile
+        const fileUrl = doc.title?.toLowerCase() || ''
+        const isDoc = fileUrl.includes('.docx') || fileUrl.includes('.doc') ||
+                     fileUrl.includes('.xlsx') || fileUrl.includes('.xls') ||
+                     fileUrl.includes('.pptx') || fileUrl.includes('.ppt') ||
+                     fileUrl.includes('.rtf')
+        const isPdf = fileUrl.includes('.pdf')
+
+        let openUrl = url
+        if (isDoc && !isPdf) {
+          // Office documents need Google Docs Viewer
+          openUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
+        }
+        // Otherwise open directly (PDFs, images, etc.)
+
+        // Use anchor tag click for better mobile support
+        const link = document.createElement('a')
+        link.href = openUrl
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
       } else {
         alert(error || "Failed to open document")
       }
