@@ -83,33 +83,20 @@ export function DocumentsClient() {
             const { success, url, error } = await getSecureDocumentUrl(doc.id)
             if (success && url) {
                 const fileUrl = doc.file_url?.toLowerCase() || ''
-                const isDoc = fileUrl.endsWith('.docx') || fileUrl.endsWith('.doc') ||
-                             fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.xls') ||
-                             fileUrl.endsWith('.pptx') || fileUrl.endsWith('.ppt') ||
-                             fileUrl.endsWith('.rtf')
-                const isPdf = fileUrl.endsWith('.pdf')
-                const isCoshh = doc.title?.toUpperCase().includes('COSHH') ||
-                               doc.category?.toUpperCase() === 'COSHH'
-                const isMsds = doc.title?.toUpperCase().includes('MSDS') ||
-                              doc.category?.toUpperCase() === 'MSDS'
-                const isCertificate = doc.title?.toUpperCase().includes('CERTIFICATE') ||
-                                     doc.category?.toUpperCase().includes('CERTIFICATE')
 
-                // For PDFs: open directly (browsers render PDFs natively)
-                // For office docs: use Google Docs Viewer
-                // For COSHH/MSDS/Certificate: check file type first, then decide
-                let openUrl = url
+                // Determine how to open based on file extension only
+                const isOfficeDoc = fileUrl.endsWith('.docx') || fileUrl.endsWith('.doc') ||
+                                   fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.xls') ||
+                                   fileUrl.endsWith('.pptx') || fileUrl.endsWith('.ppt') ||
+                                   fileUrl.endsWith('.rtf')
 
-                if (isDoc) {
-                    // Office documents need Google Docs Viewer
-                    openUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
-                } else if ((isCoshh || isMsds || isCertificate) && !isPdf) {
-                    // Only use Viewer if it's not a PDF (check by file extension)
-                    openUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
-                }
-                // Otherwise use URL directly (PDFs, images, etc.)
+                // Use Google Docs Viewer only for office documents
+                // All other formats (PDFs, images, etc.) open directly
+                const openUrl = isOfficeDoc
+                    ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
+                    : url
 
-                // Use anchor tag click instead of window.open() for better mobile support
+                // Use anchor tag click for reliable mobile support
                 const link = document.createElement('a')
                 link.href = openUrl
                 link.target = '_blank'

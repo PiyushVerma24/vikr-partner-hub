@@ -86,23 +86,20 @@ export function ProductsPage() {
     try {
       const { success, url, error } = await getSecureDocumentUrl(doc.id)
       if (success && url) {
-        // Open documents directly in new tab instead of modal
-        // This avoids intermediate pages and extra clicks on mobile
+        // Determine how to open based on file extension only
         const fileUrl = doc.title?.toLowerCase() || ''
-        const isDoc = fileUrl.includes('.docx') || fileUrl.includes('.doc') ||
-                     fileUrl.includes('.xlsx') || fileUrl.includes('.xls') ||
-                     fileUrl.includes('.pptx') || fileUrl.includes('.ppt') ||
-                     fileUrl.includes('.rtf')
-        const isPdf = fileUrl.includes('.pdf')
+        const isOfficeDoc = fileUrl.includes('.docx') || fileUrl.includes('.doc') ||
+                           fileUrl.includes('.xlsx') || fileUrl.includes('.xls') ||
+                           fileUrl.includes('.pptx') || fileUrl.includes('.ppt') ||
+                           fileUrl.includes('.rtf')
 
-        let openUrl = url
-        if (isDoc && !isPdf) {
-          // Office documents need Google Docs Viewer
-          openUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
-        }
-        // Otherwise open directly (PDFs, images, etc.)
+        // Use Google Docs Viewer only for office documents
+        // All other formats (PDFs, images, etc.) open directly
+        const openUrl = isOfficeDoc
+          ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
+          : url
 
-        // Use anchor tag click for better mobile support
+        // Use anchor tag click for reliable mobile support
         const link = document.createElement('a')
         link.href = openUrl
         link.target = '_blank'
