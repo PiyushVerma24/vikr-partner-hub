@@ -120,6 +120,7 @@ export function MobileNav({ navItems, logo, territory }: MobileNavProps) {
                 }) + ' IST'
               : '—'}
           </div>
+          <div className="text-[9px] font-semibold text-brand-accent mt-2 leading-tight">Powered by CurlingAI Solutions</div>
         </div>
       </nav>
 
