@@ -181,16 +181,24 @@ export default function ProductDetailPage() {
                         <span className="text-xs text-zinc-500 flex items-center gap-1">
                           Click to view
                         </span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="w-6 h-6 shrink-0"
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            // If they want to pop it out, get a fresh URL
-                            loadPdfViewer(doc.id, doc.title, doc.file_url).then(() => {
-                               if (activePdfUrl) window.open(activePdfUrl, '_blank')
-                            })
+                            // If they want to pop it out, get a fresh URL and open directly
+                            const { success, url } = await getSecureDocumentUrl(doc.id, 3600)
+                            if (success && url) {
+                              // Use anchor tag click instead of window.open() for better mobile support
+                              const link = document.createElement('a')
+                              link.href = url
+                              link.target = '_blank'
+                              link.rel = 'noopener noreferrer'
+                              document.body.appendChild(link)
+                              link.click()
+                              document.body.removeChild(link)
+                            }
                           }}
                         >
                           <ExternalLink className="w-3 h-3" />

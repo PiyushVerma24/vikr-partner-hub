@@ -108,7 +108,14 @@ export function ProductsPage() {
     try {
       const { success, url, error } = await getSecureDocumentUrl(doc.id, 60, true)
       if (success && url) {
-        window.open(url, '_blank')
+        // Use anchor tag click instead of window.open() for better mobile support
+        const link = document.createElement('a')
+        link.href = url
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
       } else {
         alert(error || "Download failed")
       }
