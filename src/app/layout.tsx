@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "VIKR Hub",
+    title: "VIKR",
   },
   manifest: "/manifest.webmanifest",
 };

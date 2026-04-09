@@ -24,7 +24,7 @@ export default async function LoginPage(props: Props) {
           <div className="w-8 h-8 rounded bg-bg-card border border-border-subtle flex items-center justify-center shadow-[0_0_10px_rgba(106,191,48,0.1)]">
             <span className="text-brand-accent font-bold text-xs">V</span>
           </div>
-          <span className="font-bold tracking-widest text-sm text-text-main">VIKR<span className="text-brand-accent">HUB</span></span>
+          <span className="font-bold tracking-widest text-sm text-text-main">VIKR</span>
         </div>
         {/* <ThemeToggle /> - Hidden: Light mode only. Can re-enable theme toggle later if needed */}
       </div>

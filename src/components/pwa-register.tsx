@@ -78,7 +78,7 @@ export function PwaRegister() {
                 <Download className="w-5 h-5 text-brand-accent" />
               </div>
               <div>
-                <h3 className="font-bold text-sm text-text-main">Install VIKR Hub</h3>
+                <h3 className="font-bold text-sm text-text-main">Install VIKR</h3>
                 <p className="text-xs text-text-muted mt-0.5">Add to your home screen for quick access</p>
               </div>
             </div>
