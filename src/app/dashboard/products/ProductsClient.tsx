@@ -86,12 +86,12 @@ export function ProductsPage() {
     try {
       const { success, url, error } = await getSecureDocumentUrl(doc.id)
       if (success && url) {
-        // Determine how to open based on file extension only
-        const fileUrl = doc.title?.toLowerCase() || ''
-        const isOfficeDoc = fileUrl.includes('.docx') || fileUrl.includes('.doc') ||
-                           fileUrl.includes('.xlsx') || fileUrl.includes('.xls') ||
-                           fileUrl.includes('.pptx') || fileUrl.includes('.ppt') ||
-                           fileUrl.includes('.rtf')
+        // Determine how to open based on file extension from file_url field
+        const fileUrl = doc.file_url?.toLowerCase() || ''
+        const isOfficeDoc = fileUrl.endsWith('.docx') || fileUrl.endsWith('.doc') ||
+                           fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.xls') ||
+                           fileUrl.endsWith('.pptx') || fileUrl.endsWith('.ppt') ||
+                           fileUrl.endsWith('.rtf')
 
         // Use Google Docs Viewer only for office documents
         // All other formats (PDFs, images, etc.) open directly
