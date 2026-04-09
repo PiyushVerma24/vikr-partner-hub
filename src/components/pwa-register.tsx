@@ -9,21 +9,23 @@ export function PwaRegister() {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Register service worker
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js", { scope: "/" })
-        .catch((err) => console.error("SW registration failed:", err));
-    }
-
     // Check if already installed
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setIsInstalled(true);
       return;
     }
 
+    // Register service worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js", { scope: "/" })
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch((err) => console.error("❌ SW registration failed:", err));
+    }
+
     // Listen for install prompt
     const handleBeforeInstallPrompt = (e: Event) => {
+      console.log("✅ beforeinstallprompt event fired");
       e.preventDefault();
       setDeferredPrompt(e);
       setShowInstallPrompt(true);
@@ -33,6 +35,7 @@ export function PwaRegister() {
 
     // Listen for app installed
     const handleAppInstalled = () => {
+      console.log("✅ App installed successfully");
       setIsInstalled(true);
       setShowInstallPrompt(false);
       setDeferredPrompt(null);
@@ -40,24 +43,38 @@ export function PwaRegister() {
 
     window.addEventListener("appinstalled", handleAppInstalled);
 
+    // Show prompt after 3 seconds if event hasn't fired yet (fallback for some browsers)
+    const timeoutId = setTimeout(() => {
+      if (!deferredPrompt) {
+        console.log("⏱️ Timeout: showing fallback install prompt");
+        setShowInstallPrompt(true);
+      }
+    }, 3000);
+
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
+      clearTimeout(timeoutId);
     };
-  }, []);
+  }, [deferredPrompt]);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response: ${outcome}`);
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setIsInstalled(true);
+      }
 
-    if (outcome === "accepted") {
-      setIsInstalled(true);
+      setDeferredPrompt(null);
+      setShowInstallPrompt(false);
+    } else {
+      // For browsers that don't support the event
+      console.log("⚠️ beforeinstallprompt not available, trying browser menu");
+      setShowInstallPrompt(false);
     }
-
-    setDeferredPrompt(null);
-    setShowInstallPrompt(false);
   };
 
   const handleDismiss = () => {
