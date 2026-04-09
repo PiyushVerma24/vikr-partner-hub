@@ -91,7 +91,7 @@ export function DocumentsClient() {
                 const isCoshh = doc.title?.toUpperCase().includes('COSHH') ||
                                doc.category?.toUpperCase() === 'COSHH'
 
-                const openUrl = (isDoc || isCoshh || isPdf)
+                const openUrl = (isDoc || isCoshh)
                     ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
                     : url
 
