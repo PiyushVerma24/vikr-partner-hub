@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { X, Download } from "lucide-react";
-import { toast } from "@/components/ui/sonner";
 
 export function PwaRegister() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -40,9 +39,7 @@ export function PwaRegister() {
       setIsInstalled(true);
       setShowInstallPrompt(false);
       setDeferredPrompt(null);
-      toast.success("✨ VIKR installed successfully! Check your home screen.", {
-        duration: 5000,
-      });
+console.log("✨ App installed successfully!");
     };
 
     window.addEventListener("appinstalled", handleAppInstalled);
