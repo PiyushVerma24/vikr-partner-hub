@@ -87,10 +87,11 @@ export function DocumentsClient() {
                              fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.xls') ||
                              fileUrl.endsWith('.pptx') || fileUrl.endsWith('.ppt') ||
                              fileUrl.endsWith('.rtf')
+                const isPdf = fileUrl.endsWith('.pdf')
                 const isCoshh = doc.title?.toUpperCase().includes('COSHH') ||
                                doc.category?.toUpperCase() === 'COSHH'
 
-                const openUrl = (isDoc || isCoshh)
+                const openUrl = (isDoc || isCoshh || isPdf)
                     ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
                     : url
 
