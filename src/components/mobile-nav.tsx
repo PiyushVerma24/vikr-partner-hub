@@ -90,11 +90,11 @@ export function MobileNav({ navItems, logo, territory }: MobileNavProps) {
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 mx-2 my-1 px-3 py-2.5 text-sm rounded-lg transition-all ${
                   active
-                    ? "bg-brand-accent/15 text-text-brand font-bold"
-                    : "text-text-muted hover:text-text-main hover:bg-bg-hover font-medium"
+                    ? "bg-brand-accent/15 text-black font-bold"
+                    : "text-black hover:text-black hover:bg-bg-hover font-medium"
                 }`}
               >
-                <span className="w-5 flex justify-center shrink-0">{item.icon}</span>
+                <span className="w-5 flex justify-center shrink-0 text-black">{item.icon}</span>
                 <span>{item.label}</span>
               </Link>
             )
