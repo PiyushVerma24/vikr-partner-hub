@@ -1,9 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, FileText, Package, LayoutDashboard, Video, LifeBuoy, Database, Key } from "lucide-react"
+import { Users, FileText, Package, LayoutDashboard, Video, LifeBuoy, Database, Key, Bell } from "lucide-react"
 import { NavItem } from "@/components/nav-item"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { MobileNav } from "@/components/mobile-nav"
 import { DashboardProvider, useDashboard } from "@/contexts/DashboardContext"
 
@@ -11,6 +10,7 @@ const navBase = [
   { href: "/dashboard", icon: <LayoutDashboard className="w-[15px] h-[15px]" />, label: "Dashboard" },
   { href: "/dashboard/products", icon: <Package className="w-[15px] h-[15px]" />, label: "Product Catalog" },
   { href: "/dashboard/training", icon: <Video className="w-[15px] h-[15px]" />, label: "Training Hub" },
+  { href: "/dashboard/announcements", icon: <Bell className="w-[15px] h-[15px]" />, label: "Announcements" },
   { href: "/dashboard/meetings", icon: <Users className="w-[15px] h-[15px]" />, label: "Meetings" },
   { href: "/dashboard/support", icon: <LifeBuoy className="w-[15px] h-[15px]" />, label: "Support Requests" },
   { href: "/dashboard/documents", icon: <FileText className="w-[15px] h-[15px]" />, label: "Documents" },
@@ -75,6 +75,7 @@ function Sidebar() {
           <NavItem href="/dashboard/training" icon={<Video className="w-[15px] h-[15px]" />} label="Training Hub" />
 
           <div className="text-[9px] uppercase tracking-[0.12em] text-text-meta font-bold px-4 mt-4 mb-1">Communication</div>
+          <NavItem href="/dashboard/announcements" icon={<Bell className="w-[15px] h-[15px]" />} label="Announcements" />
           <NavItem href="/dashboard/meetings" icon={<Users className="w-[15px] h-[15px]" />} label="Meetings" />
           <NavItem href="/dashboard/support" icon={<LifeBuoy className="w-[15px] h-[15px]" />} label="Support Requests" />
 
@@ -91,7 +92,6 @@ function Sidebar() {
         </nav>
 
         <div className="p-3 border-t border-border-subtle bg-bg-card shrink-0 space-y-2 mt-auto">
-          <ThemeToggle />
           <form action="/auth/signout" method="post">
             <button className="flex w-full items-center justify-center gap-2 px-3 py-2 text-xs font-bold tracking-wide text-[#FF4C4C] hover:bg-[#FF4C4C]/10 rounded-md transition-all border border-transparent hover:border-[#FF4C4C]/20 uppercase">
               Sign Out
@@ -103,6 +103,7 @@ function Sidebar() {
             <div className="text-[9px] text-text-meta leading-tight" suppressHydrationWarning>
               {mounted ? buildTime : "—"}
             </div>
+            <div className="text-[9px] font-semibold text-brand-accent mt-2 leading-tight">Powered by CurlingAI Solutions</div>
           </div>
         </div>
       </aside>

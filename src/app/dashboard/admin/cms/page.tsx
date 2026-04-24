@@ -1,7 +1,7 @@
 "use client" // Trigger reload
 
 import React, { useState, useEffect } from "react"
-import { createProduct, createTrainingModule, createAnnouncement, getProducts } from "../../actions/admin"
+import { createProduct, createTrainingModule, createAnnouncement, getProducts, getAnnouncements, archiveAnnouncement, deleteAnnouncement } from "../../actions/admin"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -75,6 +75,11 @@ export default function AdminCMSPage() {
   const [annSelectedRegions, setAnnSelectedRegions] = useState<string[]>(["GLOBAL"])
   const [isCreatingAnn, setIsCreatingAnn] = useState(false)
 
+  // Announcements List State
+  const [announcements, setAnnouncements] = useState<any[]>([])
+  const [isLoadingAnnouncements, setIsLoadingAnnouncements] = useState(false)
+
+
   const toggleAnnRegion = (region: string) => {
     setAnnSelectedRegions(curr =>
       curr.includes(region)
@@ -96,8 +101,18 @@ export default function AdminCMSPage() {
     }
   }
 
+  const fetchAnnouncements = async () => {
+    setIsLoadingAnnouncements(true)
+    const res = await getAnnouncements()
+    if (res.success && res.data) {
+      setAnnouncements(res.data as any)
+    }
+    setIsLoadingAnnouncements(false)
+  }
+
   useEffect(() => {
     fetchProducts()
+    fetchAnnouncements()
   }, [])
 
   const handleCreateSKU = async (e: React.FormEvent) => {
@@ -300,7 +315,27 @@ export default function AdminCMSPage() {
     setIsCreatingAnn(false)
   }
 
-  return (
+  const handleArchiveAnnouncement = async (announcementId: string) => {
+    const result = await archiveAnnouncement(announcementId)
+    if (result.success) {
+      await fetchAnnouncements()
+    } else {
+      alert(`Error archiving announcement: ${result.error}`)
+    }
+  }
+
+  const handleDeleteAnnouncement = async (announcementId: string) => {
+    if (confirm('Are you sure you want to permanently delete this announcement?')) {
+      const result = await deleteAnnouncement(announcementId)
+      if (result.success) {
+        await fetchAnnouncements()
+      } else {
+        alert(`Error deleting announcement: ${result.error}`)
+      }
+    }
+  }
+
+    return (
     <div className="p-4 md:p-8 space-y-6 bg-bg-main min-h-full text-text-main">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-text-main">Content Management System</h1>
@@ -767,6 +802,69 @@ export default function AdminCMSPage() {
               </Button>
             </CardFooter>
           </form>
+        </Card>
+
+        {/* Announcements Management */}
+        <Card className="col-span-1 md:col-span-2">
+          <CardHeader>
+            <CardTitle>Manage Announcements</CardTitle>
+            <CardDescription>Archive or delete existing announcements</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoadingAnnouncements ? (
+              <div className="text-center py-8 text-sm text-text-muted">Loading announcements...</div>
+            ) : announcements.length === 0 ? (
+              <div className="text-center py-8 text-sm text-text-muted">No announcements yet</div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {announcements.map((ann: any) => (
+                  <div key={ann.id} className="flex items-start justify-between p-3 border border-border-subtle rounded-lg hover:bg-bg-hover transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-sm text-text-main truncate">{ann.title}</h4>
+                      <p className="text-xs text-text-muted mt-1 line-clamp-2">{ann.content}</p>
+                      <div className="flex gap-2 mt-2 flex-wrap">
+                        {ann.valid_regions?.map((region: string) => (
+                          <span key={region} className="text-[10px] bg-brand-accent/10 text-brand-accent px-2 py-0.5 rounded">
+                            {region}
+                          </span>
+                        ))}
+                        {ann.is_pinned && (
+                          <span className="text-[10px] bg-orange-500/10 text-orange-600 px-2 py-0.5 rounded">
+                            📌 Pinned
+                          </span>
+                        )}
+                        {ann.is_archived && (
+                          <span className="text-[10px] bg-gray-500/10 text-gray-600 px-2 py-0.5 rounded">
+                            📋 Archived
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 ml-3 flex-shrink-0">
+                      {!ann.is_archived && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleArchiveAnnouncement(ann.id)}
+                          className="text-xs"
+                        >
+                          Archive
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteAnnouncement(ann.id)}
+                        className="text-xs text-red-600 hover:text-red-700"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
         </Card>
       </div>
     </div>

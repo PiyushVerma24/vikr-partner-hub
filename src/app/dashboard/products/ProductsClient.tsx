@@ -86,13 +86,27 @@ export function ProductsPage() {
     try {
       const { success, url, error } = await getSecureDocumentUrl(doc.id)
       if (success && url) {
-        const isImg = await new Promise<boolean>((resolve) => {
-          const img = new window.Image()
-          img.onload = () => resolve(true)
-          img.onerror = () => resolve(false)
-          img.src = url
-        })
-        setViewingDoc({ doc, url, isImage: isImg })
+        // Determine how to open based on file extension from file_url field
+        const fileUrl = doc.file_url?.toLowerCase() || ''
+        const isOfficeDoc = fileUrl.endsWith('.docx') || fileUrl.endsWith('.doc') ||
+                           fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.xls') ||
+                           fileUrl.endsWith('.pptx') || fileUrl.endsWith('.ppt') ||
+                           fileUrl.endsWith('.rtf')
+
+        // Use Google Docs Viewer only for office documents
+        // All other formats (PDFs, images, etc.) open directly
+        const openUrl = isOfficeDoc
+          ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
+          : url
+
+        // Use anchor tag click for reliable mobile support
+        const link = document.createElement('a')
+        link.href = openUrl
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
       } else {
         alert(error || "Failed to open document")
       }
@@ -108,7 +122,14 @@ export function ProductsPage() {
     try {
       const { success, url, error } = await getSecureDocumentUrl(doc.id, 60, true)
       if (success && url) {
-        window.open(url, '_blank')
+        // Use anchor tag click instead of window.open() for better mobile support
+        const link = document.createElement('a')
+        link.href = url
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
       } else {
         alert(error || "Download failed")
       }

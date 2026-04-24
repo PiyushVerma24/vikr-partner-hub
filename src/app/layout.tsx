@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "VIKR Hub",
+    title: "VIKR",
   },
   manifest: "/manifest.webmanifest",
 };
@@ -47,11 +47,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                if (localStorage.getItem('theme') === 'dark') {
-                  document.documentElement.classList.add('dark')
-                } else {
-                  document.documentElement.classList.remove('dark')
-                }
+                // Force light mode only - remove dark class if present
+                document.documentElement.classList.remove('dark')
               } catch (_) {}
             `,
           }}

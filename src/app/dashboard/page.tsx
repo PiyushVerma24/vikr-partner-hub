@@ -22,7 +22,7 @@ export default function DashboardPage() {
       supabase.from("products").select("id", { count: "exact", head: true }).eq("is_active", true),
       supabase.from("training_hub_videos").select("id", { count: "exact", head: true }),
       supabase.from("documents").select("id", { count: "exact", head: true }),
-      supabase.from("announcements").select("*").order("is_pinned", { ascending: false }).order("date_posted", { ascending: false }).limit(5),
+      supabase.from("announcements").select("*").eq("is_archived", false).order("is_pinned", { ascending: false }).order("date_posted", { ascending: false }).limit(5),
     ]).then(([p, t, d, a]) => {
       setProductCount(p.count ?? 0)
       setTrainingCount(t.count ?? 0)
@@ -35,7 +35,7 @@ export default function DashboardPage() {
     <div className="p-4 md:p-8 space-y-4 md:space-y-6 bg-bg-main min-h-full w-full">
       <div className="relative overflow-hidden rounded-xl sm:rounded-2xl border border-border-subtle bg-gradient-to-br from-bg-grad-start to-bg-grad-end px-4 sm:px-6 py-6 md:px-8 shadow-lg">
         <div className="pointer-events-none absolute -top-10 -right-10 h-56 w-56 rounded-full" style={{ background: "radial-gradient(circle,rgba(106,191,48,0.14),transparent 70%)" }} />
-        <h1 className="relative z-10 text-xl sm:text-2xl font-extrabold text-text-main">Welcome to <span className="text-brand-accent">VIKR Partner Hub</span></h1>
+        <h1 className="relative z-10 text-xl sm:text-2xl font-extrabold text-text-main">Welcome to <span className="text-brand-accent">VIKR</span></h1>
         <p className="relative z-10 mt-1 max-w-xl text-xs sm:text-sm leading-relaxed text-text-muted">Your central platform for product information, training, announcements and partner support — powered by Vikr Bioscience Pvt. Ltd., India.</p>
       </div>
 

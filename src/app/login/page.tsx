@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ShieldAlert } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -24,9 +23,8 @@ export default async function LoginPage(props: Props) {
           <div className="w-8 h-8 rounded bg-bg-card border border-border-subtle flex items-center justify-center shadow-[0_0_10px_rgba(106,191,48,0.1)]">
             <span className="text-brand-accent font-bold text-xs">V</span>
           </div>
-          <span className="font-bold tracking-widest text-sm text-text-main">VIKR<span className="text-brand-accent">HUB</span></span>
+          <span className="font-bold tracking-widest text-sm text-text-main">VIKR</span>
         </div>
-        <ThemeToggle />
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4 z-10">

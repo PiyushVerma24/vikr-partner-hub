@@ -34,12 +34,14 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
     const [currentMonth, setCurrentMonth] = useState<Date | null>(null)
     const [selectedDate, setSelectedDate] = useState<string | null>(null)
     const [todayKey, setTodayKey] = useState<string>("")
+    const [now, setNow] = useState<Date | null>(null)
 
     useEffect(() => {
         setMounted(true)
-        const now = new Date()
-        setTodayKey(toLocalDateKey(now))
-        setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1))
+        const currentNow = new Date()
+        setNow(currentNow)
+        setTodayKey(toLocalDateKey(currentNow))
+        setCurrentMonth(new Date(currentNow.getFullYear(), currentNow.getMonth(), 1))
     }, [])
 
     // Build date-string → meetings[] map
@@ -214,7 +216,7 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
                     ) : (
                         <div className="flex flex-col gap-2">
                             {selectedMeetings.map((m) => {
-                                const isPast = new Date(m.date_time) < new Date()
+                                const isPast = now ? new Date(m.date_time) < now : false
                                 return (
                                     <div
                                         key={m.id}
@@ -271,7 +273,7 @@ export function MeetingsCalendar({ meetings }: MeetingsCalendarProps) {
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="w-6 h-6 rounded-full bg-brand-accent flex items-center justify-center text-xs font-extrabold text-black">
-                        {new Date().getDate()}
+                        {now?.getDate()}
                     </span>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-text-meta">Today</span>
                 </div>

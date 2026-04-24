@@ -7,7 +7,6 @@ import { deleteProductDocument } from "@/app/dashboard/actions/admin"
 import { createClient } from "@/utils/supabase/client"
 import { useDashboard } from "@/contexts/DashboardContext"
 import { ShareDocumentButton } from "@/components/ShareDocumentButton"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -55,7 +54,6 @@ export function DocumentsClient() {
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("All")
     const [openingDocId, setOpeningDocId] = useState<string | null>(null)
-    const [viewingDoc, setViewingDoc] = useState<{ doc: Document, url: string, isImage: boolean } | null>(null)
 
     const uniqueCategories = Array.from(new Set(documents.map(d => d.category))).sort()
 
@@ -84,13 +82,28 @@ export function DocumentsClient() {
         try {
             const { success, url, error } = await getSecureDocumentUrl(doc.id)
             if (success && url) {
-                const isImg = await new Promise<boolean>((resolve) => {
-                    const img = new window.Image()
-                    img.onload = () => resolve(true)
-                    img.onerror = () => resolve(false)
-                    img.src = url
-                })
-                setViewingDoc({ doc, url, isImage: isImg })
+                const fileUrl = doc.file_url?.toLowerCase() || ''
+
+                // Determine how to open based on file extension only
+                const isOfficeDoc = fileUrl.endsWith('.docx') || fileUrl.endsWith('.doc') ||
+                                   fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.xls') ||
+                                   fileUrl.endsWith('.pptx') || fileUrl.endsWith('.ppt') ||
+                                   fileUrl.endsWith('.rtf')
+
+                // Use Google Docs Viewer only for office documents
+                // All other formats (PDFs, images, etc.) open directly
+                const openUrl = isOfficeDoc
+                    ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=false`
+                    : url
+
+                // Use anchor tag click for reliable mobile support
+                const link = document.createElement('a')
+                link.href = openUrl
+                link.target = '_blank'
+                link.rel = 'noopener noreferrer'
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
             } else {
                 alert(error || 'Failed to open document')
             }
@@ -107,7 +120,14 @@ export function DocumentsClient() {
         try {
             const { success, url, error } = await getSecureDocumentUrl(docId, 60, true)
             if (success && url) {
-                window.open(url, '_blank')
+                // Use anchor tag click instead of window.open() for better mobile support
+                const link = document.createElement('a')
+                link.href = url
+                link.target = '_blank'
+                link.rel = 'noopener noreferrer'
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
             } else {
                 alert(error || 'Download failed')
             }
@@ -234,61 +254,6 @@ export function DocumentsClient() {
                 </div>
             </div>
 
-            <Dialog open={!!viewingDoc} onOpenChange={(open) => !open && setViewingDoc(null)}>
-                <DialogContent
-                    className="flex flex-col bg-bg-card border-border-subtle overflow-hidden"
-                    style={{
-                        width: viewingDoc?.isImage ? 'fit-content' : 'calc(100vw - 40px)',
-                        height: viewingDoc?.isImage ? 'fit-content' : 'calc(100vh - 40px)',
-                        maxWidth: 'calc(100vw - 40px)',
-                        maxHeight: 'calc(100vh - 40px)',
-                        padding: '20px',
-                        display: 'flex'
-                    }}>
-                    <DialogHeader style={{ flexShrink: 0, paddingBottom: '16px' }}>
-                        <DialogTitle className="text-text-main text-xl pr-8">{viewingDoc?.doc.title}</DialogTitle>
-                    </DialogHeader>
-                    <div
-                        className="w-full bg-white relative rounded-xl border border-border-subtle overflow-hidden flex items-center justify-center"
-                        style={{
-                            flexGrow: viewingDoc?.isImage ? 0 : 1,
-                            minHeight: viewingDoc?.isImage ? 'auto' : '50vh',
-                            maxHeight: viewingDoc?.isImage ? 'calc(100vh - 120px)' : 'none',
-                            position: 'relative'
-                        }}>
-                        {viewingDoc && (
-                            viewingDoc.isImage ? (
-                                <img
-                                    src={viewingDoc.url}
-                                    alt={viewingDoc.doc.title}
-                                    style={{ maxWidth: '100%', maxHeight: 'calc(100vh - 120px)', objectFit: 'contain', display: 'block' }}
-                                />
-                            ) : (
-                                <iframe
-                                    src={
-                                        (() => {
-                                            const fileUrl = viewingDoc.doc.file_url?.toLowerCase() || '';
-                                            const isDoc = fileUrl.endsWith('.docx') || fileUrl.endsWith('.doc') || 
-                                                         fileUrl.endsWith('.xlsx') || fileUrl.endsWith('.xls') || 
-                                                         fileUrl.endsWith('.pptx') || fileUrl.endsWith('.ppt') ||
-                                                         fileUrl.endsWith('.rtf');
-                                            const isCoshh = viewingDoc.doc.title?.toUpperCase().includes('COSHH') || 
-                                                           viewingDoc.doc.category?.toUpperCase() === 'COSHH';
-                                            
-                                            if (isDoc || isCoshh) {
-                                                return `https://docs.google.com/viewer?url=${encodeURIComponent(viewingDoc.url)}&embedded=true`;
-                                            }
-                                            return viewingDoc.url;
-                                        })()
-                                    }
-                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                                    title={viewingDoc.doc.title}
-                                />
-                            )
-                        )}
-                    </div>
-                </DialogContent>
-            </Dialog>
         </div>
     )
 }

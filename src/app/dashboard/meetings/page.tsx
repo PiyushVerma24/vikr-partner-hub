@@ -51,6 +51,7 @@ export default function MeetingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [now, setNow] = useState<Date | null>(null)
 
   // Panel state
   const [panelOpen, setPanelOpen] = useState(false)
@@ -81,6 +82,9 @@ export default function MeetingsPage() {
   }, [])
 
   useEffect(() => {
+    // Initialize current time to prevent hydration mismatch
+    setNow(new Date())
+
     fetchMeetings()
 
     // Check if user is admin
@@ -242,7 +246,7 @@ export default function MeetingsPage() {
               ) : (
                 meetings.map((meeting) => {
                   const { date, time } = formatDateTime(meeting.date_time)
-                  const isPast = new Date(meeting.date_time) < new Date()
+                  const isPast = now ? new Date(meeting.date_time) < now : false
                   return (
                     <TableRow key={meeting.id} className="border-b border-border-subtle hover:bg-bg-hover">
                       <TableCell className="align-top py-4">
